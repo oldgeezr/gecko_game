@@ -83,7 +83,41 @@
 
         .thumb_func
 _reset:
-	      b .  // do nothing
+        // Enable GPIO clk
+        ldr r1, cmu_base_addr
+        ldr r2, [r1, #CMU_HFPERCLKEN0]
+        mov r3, #1
+        lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
+        orr r2, r2, r3
+        str r2, [r1, #CMU_HFPERCLKEN0]
+
+        // Enable drive strenght
+        ldr r1, gpio_pa_base_addr
+        ldr r2, [r1, #GPIO_CTRL]
+        mov r3, #2
+        orr r2, r2, r3
+        str r2, [r1, #GPIO_CTRL]
+
+        // Set pin dir MODEH
+        ldr r1, gpio_pa_base_addr
+        ldr r2, [r1, #GPIO_MODEH]
+        ldr r3, =0x55555555
+        // Temporaily setting only two leds weird shit
+        orr r2, r2, r3
+        str r2, [r1, #GPIO_MODEH]
+
+        ldr r1, gpio_pa_base_addr
+        ldr r2, [r1, #GPIO_DOUT]
+        ldr r3, =0x00000000
+        // Temporaily setting only two leds weird shit
+        orr r2, r2, r3
+        str r2, [r1, #GPIO_DOUT]
+
+cmu_base_addr:
+        .long CMU_BASE
+
+gpio_pa_base_addr:
+        .long GPIO_PA_BASE
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -102,4 +136,3 @@ gpio_handler:
         .thumb_func
 dummy_handler:
         b .  // do nothing
-
