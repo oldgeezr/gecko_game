@@ -107,7 +107,7 @@ _reset:
         // MOV instruction only support 8 bit. Why?
 
         // Set LEDS
-        // mov r2, #0x55
+        // mov r2, #0x01
         // lsl r2, r2, #8
         // str r2, [r1, #GPIO_DOUT]
 
@@ -124,24 +124,13 @@ _reset:
 
         // Enable interrupt on port C
         ldr r1, gpio_base_addr
-        ldr r2, [r1, #GPIO_EXTIPSELL]
-        ldr r3, =0x22222222
-        orr r2, r2, r3
+        ldr r2, =0x22222222
         str r2, [r1, #GPIO_EXTIPSELL]
 
-        ldr r2, [r1, #GPIO_EXTIRISE]
-        ldr r3, =0xff
-        orr r2, r2, r3
-        str r2, [r1, #GPIO_EXTIRISE]
-
-        ldr r2, [r1, #GPIO_EXTIFALL]
-        ldr r3, =0xff
-        orr r2, r2, r3
+        ldr r2, =0xff
         str r2, [r1, #GPIO_EXTIFALL]
 
-        ldr r2, [r1, #GPIO_IEN]
-        ldr r3, =0xff
-        orr r2, r2, r3
+        ldr r2, =0xff
         str r2, [r1, #GPIO_IEN]
 
         // Enable interrupt handling
@@ -149,13 +138,16 @@ _reset:
         ldr r2, =0x802
         str r2, [r1, #0]
 
+loop:
+        b loop
+
 // Read btn state and update leds accordingly
 btn_poll:
 
-        //ldr r3, gpio_pa_base_addr
-        //ldr r2, [r1, #GPIO_DIN]
-        //lsl r2, r2, #8
-        //str r2, [r3, #GPIO_DOUT]
+        ldr r3, gpio_pa_base_addr
+        ldr r2, [r1, #GPIO_DIN]
+        lsl r2, r2, #8
+        str r2, [r3, #GPIO_DOUT]
         b btn_poll
 
 cmu_base_addr:
@@ -189,7 +181,8 @@ gpio_handler:
 
         ldr r3, gpio_pa_base_addr
         ldr r1, gpio_base_addr
-        ldr r2, [r1, #GPIO_IF]
+        // ldr r2, [r1, #GPIO_IF]
+        mov r2, #0xff
         lsl r2, r2, #8
         str r2, [r3, #GPIO_DOUT]
         str r2, [r1, #GPIO_IFC]
