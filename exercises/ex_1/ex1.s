@@ -146,10 +146,10 @@ _reset:
         mov r2, #6
         str r2, [r1]
 
-        bl btn_polling
+        //bl btn_polling
 
         //Wait for interrupt
-        //wfi
+        wfi
 
   /////////////////////////////////////////////////////////////////////////////
   //
