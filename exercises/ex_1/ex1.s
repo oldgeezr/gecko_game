@@ -131,13 +131,16 @@ _reset:
         str r2, [r1, #GPIO_EXTIFALL]
 
         mov r2, #0xff
+        str r2, [r1, #GPIO_EXTIRISE]
+
+        mov r2, #0xff
         str r2, [r1, #GPIO_IEN]
 
         // Enable interrupt handling
         ldr r1, =ISER0
         ldr r2, =0x802
         str r2, [r1, #0]
-		
+
 		//Enable deepsleep mode
 		ldr r1, =SCR
 		mov r2, #6
@@ -159,7 +162,7 @@ _reset:
 btn_polling:
 		ldr r1, =GPIO_PC_BASE
 		ldr r2, =GPIO_PA_BASE
-while: 	
+while:
 		ldr r3, [r1, #GPIO_DIN]
 		lsl r3, r3, #8
 		str r3, [r2, #GPIO_DOUT]
@@ -174,7 +177,7 @@ while:
 
     .thumb_func
 gpio_handler:
-		
+
 		//Clear ISR flag
 		ldr r1, =GPIO_BASE
         ldr r2, [r1, #GPIO_IF]
