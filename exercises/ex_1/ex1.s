@@ -81,24 +81,24 @@
 	      .globl  _reset
 	      .type   _reset, %function
 
-        .thumb_func
+    .thumb_func
 _reset:
-        // Enable GPIO clk
-        ldr r1, cmu_base_addr
+        // Enable clk for GPIO
+        ldr r1, =CMU_BASE
         ldr r2, [r1, #CMU_HFPERCLKEN0]
         mov r3, #1
         lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
         orr r2, r2, r3
         str r2, [r1, #CMU_HFPERCLKEN0]
 
-        // Enable drive strength
-        ldr r1, gpio_pa_base_addr
+        // Set drive strength to 20mA
+        ldr r1, =GPIO_PA_BASE
         ldr r2, [r1, #GPIO_CTRL]
-        ldr r3, =0x2
+        mov r3, #2
         orr r2, r2, r3
         str r2, [r1, #GPIO_CTRL]
 
-        // Set pin diretion in MODEH (8-15)
+        // Configure pin 8-15 as output on PORTA (LEDs)
         ldr r2, [r1, #GPIO_MODEH]
         ldr r3, =0x55555555
         orr r2, r2, r3
@@ -106,68 +106,64 @@ _reset:
 
         // MOV instruction only support 8 bit. Why?
 
-        // Set LEDS
-        // mov r2, #0x01
-        // lsl r2, r2, #8
-        // str r2, [r1, #GPIO_DOUT]
+        // Turn all LEDs off
+        mov r2, #0xff
+        lsl r2, r2, #8
+        str r2, [r1, #GPIO_DOUT]
 
-        // Enable input and pull direction by DOUT
-        ldr r1, gpio_pc_base_addr
+        // Configure pin 0-7 as input on PORTC (BTNs)
+        ldr r1, =GPIO_PC_BASE
         ldr r2, [r1, #GPIO_MODEL]
         ldr r3, =0x33333333
         orr r2, r2, r3
         str r2, [r1, #GPIO_MODEL]
 
-        // Enable pull-up
-        ldr r2, =0xff
+        // Enable pull-up for BTN pins
+        mov r2, #0xff
         str r2, [r1, #GPIO_DOUT]
 
-        // Enable interrupt on port C
-        ldr r1, gpio_base_addr
+        // Enable interrupt for BTN pins
+        ldr r1, =GPIO_BASE
         ldr r2, =0x22222222
         str r2, [r1, #GPIO_EXTIPSELL]
 
-        ldr r2, =0xff
+        mov r2, #0xff
         str r2, [r1, #GPIO_EXTIFALL]
 
-        ldr r2, =0xff
+        mov r2, #0xff
         str r2, [r1, #GPIO_IEN]
 
         // Enable interrupt handling
-        ldr r1, nvic_iser0_addr
+        ldr r1, =ISER0
         ldr r2, =0x802
         str r2, [r1, #0]
+		
+		//Enable deepsleep mode
+		ldr r1, =SCR
+		mov r2, #6
+		str r2, [r1]
 
-loop:
-        b loop
+		//bl btn_polling
 
-// Read btn state and update leds accordingly
-btn_poll:
+		//Wait for interrupt
+		wfi
 
-        ldr r3, gpio_pa_base_addr
-        ldr r2, [r1, #GPIO_DIN]
-        lsl r2, r2, #8
-        str r2, [r3, #GPIO_DOUT]
-        b btn_poll
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// Polling function
+  // Light LED based on BTN pressed
+	//
+	/////////////////////////////////////////////////////////////////////////////
 
-cmu_base_addr:
-        .long CMU_BASE
-
-// Base address for LEDS
-gpio_pa_base_addr:
-        .long GPIO_PA_BASE
-
-// Base address for GPIO
-gpio_base_addr:
-        .long GPIO_BASE
-
-// Base address for BTNS
-gpio_pc_base_addr:
-        .long GPIO_PC_BASE
-
-// Address for ISER0
-nvic_iser0_addr:
-        .long ISER0
+	.thumb_func
+btn_polling:
+		ldr r1, =GPIO_PC_BASE
+		ldr r2, =GPIO_PA_BASE
+while: 	
+		ldr r3, [r1, #GPIO_DIN]
+		lsl r3, r3, #8
+		str r3, [r2, #GPIO_DOUT]
+		b while
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -176,19 +172,26 @@ nvic_iser0_addr:
 	//
 	/////////////////////////////////////////////////////////////////////////////
 
-        .thumb_func
+    .thumb_func
 gpio_handler:
-
-        ldr r3, gpio_pa_base_addr
-        ldr r1, gpio_base_addr
-        // ldr r2, [r1, #GPIO_IF]
-        mov r2, #0xff
-        lsl r2, r2, #8
-        str r2, [r3, #GPIO_DOUT]
+		
+		//Clear ISR flag
+		ldr r1, =GPIO_BASE
+        ldr r2, [r1, #GPIO_IF]
         str r2, [r1, #GPIO_IFC]
+
+        //Light LED based on BTN pressed
+        ldr r1, =GPIO_PC_BASE
+	    ldr r2, =GPIO_PA_BASE
+
+		ldr r3, [r1, #GPIO_DIN]
+	    lsl r3, r3, #8
+	    str r3, [r2, #GPIO_DOUT]
+
+        bx lr
 
 	/////////////////////////////////////////////////////////////////////////////
 
-        .thumb_func
+    .thumb_func
 dummy_handler:
         b .  // do nothing
