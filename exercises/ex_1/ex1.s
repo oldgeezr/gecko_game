@@ -104,8 +104,6 @@ _reset:
         orr r2, r2, r3
         str r2, [r1, #GPIO_MODEH]
 
-        // MOV instruction only support 8 bit. Why?
-
         // Turn all LEDs off
         mov r2, #0xff
         lsl r2, r2, #8
@@ -146,7 +144,12 @@ _reset:
         mov r2, #6
         str r2, [r1]
 
-        //bl btn_polling
+        // Disable RAM block 0 through 3
+        ldr r1, =EMU_BASE
+        mov r2, #7
+        str r2, [r1, #EMU_MEMCTRL]
+
+        // bl btn_polling
 
         //Wait for interrupt
         wfi
