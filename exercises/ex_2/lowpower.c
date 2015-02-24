@@ -3,6 +3,15 @@
 
 #include "efm32gg.h"
 
-/*
-    TODO Write functions for enabling low-power modes
-  */
+static inline void enableDeepsleep(void) {
+	*SCR = 6;
+}
+
+static inline void disableRamBlocks(void) {
+	*EMU_MEMCTRL = 7;
+}
+
+void setupLowpower(void) {
+	enableDeepsleep();
+	disableRamBlocks();
+}
