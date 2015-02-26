@@ -1,40 +1,55 @@
 #include <stdbool.h>
-#include <math.h>
 
-#include "efm32gg.h"
+#define SINGLE_ENDED (0 << 1)
+#define DIFFERENTIAL (1 << 1)
+#define OUTMODE_PIN (1 << 5)
+#define PRESC_1 (1 << 16)
+#define PRESC_2 (1 << 17)
+#define PRESC_3 (1 << 18)
 
-/*
-    TODO enable and set up the Digital-Analog Converter
-    
-    1. Enable the DAC clock by setting bit 17 in CMU_HFPERCLKEN0
-    2. Prescale DAC clock by writing 0x50010 to DAC0_CTRL
-    3. Enable left and right audio channels by writing 1 to DAC0_CH0CTRL and DAC0_CH1CTRL
-    4. Write a continuous stream of samples to the DAC data registers, DAC0_CH0DATA and DAC0_CH1DATA, for example from a timer interrupt
-*/
+#define HFPER_DAC0 (1 << 17)
+#define HFPER_PRS (1 << 15)
+
+typedef struct
+{
+	uint32_t src_data_end_ptr;
+	uint32_t dst_data_end_ptr;
+	uint32_t channel_cfg;
+} configDMA_t;
 
 void setupDAC(void)
 {
-   *CMU_HFPERCLKEN0 = (1 << 17);
-   *DAC0_CTRL = 0x50010;
-   *DAC0_CH0CTRL = 1;
-   *DAC0_CH1CTRL = 1;
+   *CMU_HFPERCLKEN0 |= HFPER_DAC0;
+   *DAC0_CTRL = DIFFERENTIAL | OUTMODE_PIN | PRESC_1 | PRESC_3;
+   *DAC0_CH0CTRL = true;
+   *DAC0_CH1CTRL = true;
 }
 
-/*
-void setupDMA(void) {
-	//This is where the magic happends...
-	//Format on the 8 lowest bits [A][CCCC][MMM] 
-	
-	*DMA_CTRLBASE = 0b0 000 0000
-
-	*DMA_CONFIG = 1;
-	*DMA_CHUSEBURSTS[0] = 1;
-	*DMA_REQMASKC[0] = 1;
-	*DMA_CHALTC[0] = 1;
-	*DMA_CHENS[0] = 1;
-
-	*SOURCESEL = 0b001010 -> DAC0
-	*SIGSEL = 0b0000  -> DAC0 -> CH0
-	*DMA_CH0_CTRL = 0b001010;
+void disableDAC(void) 
+{
+	*CMU_HFPERCLKEN0 &= ~(HFPER_DAC0);
 }
-*/
+
+void setupDMA(void) 
+{
+	*DMA_CH0_CTRL = (1 << 19) | (1 << 17); //DAC0
+
+	configDMA_t config;
+	config.src_data_end_ptr = 0;
+	config.dst_data_end_ptr = 0;
+	config.channel_cfg = 0xAA000000;
+
+	*DMA_CTRLBASE = 0;
+
+	*DMA_CONFIG = true;
+	*DMA_CHUSEBURSTS = true;
+	*DMA_REQMASKC = true;
+	*DMA_CHALTC = true;
+	*DMA_CHENS = true;
+}
+
+void setupPRS(void)
+{
+	*CMU_HFPERCLKEN0 |= HFPER_PRS;
+	*PRS_CH0_CTRL = 0;
+}

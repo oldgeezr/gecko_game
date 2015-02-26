@@ -14,6 +14,17 @@ void setupTimer(uint16_t freq)
   *TIMER1_CMD = 1;
 }
 
+void setupLowEnergyTimer(void)
+{	
+	*CMU_OSCENCMD = (1 << 6);
+	*CMU_HFCORECLKEN0 |= (1 << 4);
+	*LETIMER0_CTRL |= (1 << 9); 
+	*CMU_LFACLKEN0 |= (1 << 2);
+	*LETIMER0_TOP = 1;
+	*LETIMER0_IEN = 1;
+	*LETIMER0_CMD = 1;
+}
+
 /* function to disable the timer */
 void disableTimer(void)
 {
