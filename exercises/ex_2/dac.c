@@ -10,10 +10,13 @@
 #define HFPER_DAC0 (1 << 17)
 #define HFPER_PRS (1 << 15)
 
+#define DMA_BUFFER_SIZE 32 
+static uint16_t dma_buffer[DMA_BUFFER_SIZE]
+
 typedef struct
 {
-	uint32_t src_data_end_ptr;
-	uint32_t dst_data_end_ptr;
+	uint32_t *src_data_end_ptr;
+	uint32_t *dst_data_end_ptr;
 	uint32_t channel_cfg;
 } configDMA_t;
 
@@ -21,8 +24,9 @@ void setupDAC(void)
 {
    *CMU_HFPERCLKEN0 |= HFPER_DAC0;
    *DAC0_CTRL = DIFFERENTIAL | OUTMODE_PIN | PRESC_1 | PRESC_3;
-   *DAC0_CH0CTRL = true;
-   *DAC0_CH1CTRL = true;
+   //Trigger DAC from PRS0 input
+   *DAC0_CH0CTRL = (1 << 2) | (1 << 1);
+   *DAC0_CH1CTRL = (1 << 2) | (1 << 1);
 }
 
 void disableDAC(void) 
@@ -33,13 +37,25 @@ void disableDAC(void)
 void setupDMA(void) 
 {
 	*DMA_CH0_CTRL = (1 << 19) | (1 << 17); //DAC0
+	//DMA_BUFFER_SIZE-1
 
 	configDMA_t config;
-	config.src_data_end_ptr = 0;
-	config.dst_data_end_ptr = 0;
-	config.channel_cfg = 0xAA000000;
+	config.src_data_end_ptr = dma_buffer + DMA_BUFFER_SIZE;
+	config.dst_data_end_ptr = DAC0_COMBDATA;
+	//src inc = word
+	//src size = word
+	//dst inc = no increment
+	//dst size = word
+	//cycle 
 
-	*DMA_CTRLBASE = 0;
+	config.channel_cfg = 0xA2000001 | (DMA_BUFFER_SIZE << 4) ;
+
+	//SrcEngPtr
+	*(DMA_CTRLBASE + 0x000) = 0;
+	//DstEndPtr
+	*(DMA_CTRLBASE + 0x004) = 0;
+	//ch_cfg
+	*(DMA_CTRLBASE + 0x008) = 0;
 
 	*DMA_CONFIG = true;
 	*DMA_CHUSEBURSTS = true;
@@ -51,5 +67,6 @@ void setupDMA(void)
 void setupPRS(void)
 {
 	*CMU_HFPERCLKEN0 |= HFPER_PRS;
-	*PRS_CH0_CTRL = 0;
+	// Select LETIMER0
+	*PRS_CH0_CTRL = (1 << 21) | (1 << 20) | (1 << 18);
 }
