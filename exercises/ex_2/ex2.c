@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+#include "lowpower.h"
 
 /*
   TODO calculate the appropriate sample period for the sound wave(s)
@@ -15,8 +16,8 @@
 /* Declaration of peripheral setup functions */
 void setupGPIO();
 void setupDAC();
-void setupTimer(uint32_t period);
-static inline void enterEMx(void);
+// void setupTimer(uint32_t period);
+void setupLowEnergyTimer(uint16_t freq);
 static inline void waitForInterrupt(void);
 static inline void setupNVIC(void);
 
@@ -26,13 +27,14 @@ int main(void)
   /* Call the peripheral setup functions */
   setupGPIO();
   setupDAC();
-  setupTimer(SAMPLE_FREQ);
+  // setupTimer(SAMPLE_FREQ);
+  setupLowEnergyTimer(SAMPLE_FREQ);
 
   /* Enable interrupt handling */
   setupNVIC();
 
-  // Change "x" with desired EM
-  enterEMx();
+  // Enable Deep Sleep and disable Ram Blocks
+  setupLowpower();
 
   // Turn OFF clk and wait for interrupt
   waitForInterrupt();
@@ -40,10 +42,6 @@ int main(void)
   for (;;) {};
 }
 
-static inline void enterEMx(void)
-{
-  *SCR = 6;
-}
 static inline void waitForInterrupt(void)
 {
   __asm volatile ("wfi");

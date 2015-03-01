@@ -3,7 +3,7 @@
 
 #include "efm32gg.h"
 
-static inline void enableDeepsleep(void) {
+static inline void enableDeepSleep(void) {
 	*SCR = 6;
 }
 
