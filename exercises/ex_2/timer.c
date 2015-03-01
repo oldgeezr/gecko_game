@@ -5,16 +5,16 @@
 
 #define FCPU 14000000UL
 
-/* function to setup the timer */
 void setupTimer(uint16_t freq)
 {
   *CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
-  *TIMER1_TOP = FCPU/freq;
+  *TIMER1_CTRL = (0x06 << 24); //Prescale 64
+  *TIMER1_TOP = 10000; //should give 1 Hz
   *TIMER1_IEN = 1;
   *TIMER1_CMD = 1;
 }
 
-void setupLowEnergyTimer(void)
+void setupLowEnergyTimer()
 {	
 	*CMU_OSCENCMD = (1 << 6);
 	*CMU_HFCORECLKEN0 |= (1 << 4);
@@ -25,10 +25,14 @@ void setupLowEnergyTimer(void)
 	*LETIMER0_CMD = 1;
 }
 
-/* function to disable the timer */
+void disableLowEnergyTimer(void) 
+{
+   *CMU_HFCORECLKEN0 &= ~(1 << 4);
+}
+
 void disableTimer(void)
 {
-  *CMU_HFPERCLKEN0 |= ~CMU2_HFPERCLKEN0_TIMER1;
+  *CMU_HFPERCLKEN0 |= ~(CMU2_HFPERCLKEN0_TIMER1);
   *TIMER1_TOP = 0;
   *TIMER1_IEN = 0;
   *TIMER1_CMD = 0;

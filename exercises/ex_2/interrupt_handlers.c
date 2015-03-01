@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "dac.h"
 
 #include "efm32gg.h"
 
@@ -7,23 +8,26 @@
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
   *TIMER1_IFC = 1;
+  *GPIO_PA_DOUTTGL = 0xffff;
+}
 
-  // Put sample on DAC and divide by 2 (health insurance)
-  /*
-  sample = sample/2;
-  *DAC0CH0DATA = sample;
-  *DAC0CH1DATA = sample;
-  */
+void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
+{
+	*LETIMER0_IFC = 1;
+	//*GPIO_PA_DOUTTGL = 0xffff;
+	//playSine();
 }
 
 /* GPIO even pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 {
-    /* TODO handle button pressed event, remember to clear pending interrupt */
+	*GPIO_IFC = 0xff;
+	*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
 }
 
 /* GPIO odd pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
-    /* TODO handle button pressed event, remember to clear pending interrupt */
+	*GPIO_IFC = 0xff;
+	*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
 }
