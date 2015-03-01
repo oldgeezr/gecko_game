@@ -12,6 +12,9 @@
 */
 
 #define SAMPLE_FREQ 44100
+#define A_TONE      440
+#define B_TONE      247
+#define C_TONE      262
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -24,6 +27,9 @@ static inline void setupNVIC(void);
 /* Your code will start executing here */
 int main(void)
 {
+  // Generate Tone Arrays
+  toneGenerator(A);
+
   /* Call the peripheral setup functions */
   setupGPIO();
   setupDAC();
@@ -34,7 +40,7 @@ int main(void)
   setupNVIC();
 
   // Enable Deep Sleep and disable Ram Blocks
-  setupLowpower();
+  setupLowPowerMode();
 
   // Turn OFF clk and wait for interrupt
   waitForInterrupt();

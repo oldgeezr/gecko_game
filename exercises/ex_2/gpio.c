@@ -7,7 +7,7 @@
 void setupGPIO()
 {
   /* TODO set input and output pins for the joystick */
-    
+
   /* Example of HW access from C code: turn on joystick LEDs D4-D8
      check efm32gg.h for other useful register definitions
   */

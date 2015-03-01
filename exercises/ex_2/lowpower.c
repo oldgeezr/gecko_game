@@ -11,7 +11,7 @@ static inline void disableRamBlocks(void) {
 	*EMU_MEMCTRL = 7;
 }
 
-void setupLowpower(void) {
+void setupLowPowerMode(void) {
 	enableDeepsleep();
 	disableRamBlocks();
 }

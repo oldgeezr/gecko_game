@@ -2,9 +2,7 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
-
-#define TONE_ARRAY_STRT_PTR ((uint16_t *)(0x25000000))
-#define TONE_ARRAY_END_PTR  ((uint16_t *)(0x25000000 + ())
+#include "samples.h"
 
 // Might not be necessary because of PRS
 /* LETIMER0 interrupt handler */
@@ -16,7 +14,7 @@ void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
   *DAC0CH0DATA = *sample_ptr;
   *DAC0CH1DATA = *sample_ptr;
   if (sample_ptr != TONE_ARRAY_END_PTR) {
-    sample_ptr = sample_ptr + 16;
+    sample_ptr++;
   } else {
     sample_ptr = TONE_ARRAY_STRT_PTR;
   }
