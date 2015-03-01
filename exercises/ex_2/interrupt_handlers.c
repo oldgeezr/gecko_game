@@ -3,6 +3,13 @@
 
 #include "efm32gg.h"
 
+// Might not be necessary because of PRS
+/* LETIMER0 interrupt handler */
+void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
+{
+  *LETIMER0_IFC = 1;
+}
+
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
