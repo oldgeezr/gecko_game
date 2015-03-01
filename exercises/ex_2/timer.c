@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+#include "timer.h"
 
 #define FCPU 14000000UL
 
@@ -14,13 +15,13 @@ void setupTimer(uint16_t freq)
   *TIMER1_CMD = 1;
 }
 
-void setupLowEnergyTimer(void)
-{	
-	*CMU_OSCENCMD = (1 << 6);
-	*CMU_HFCORECLKEN0 |= (1 << 4);
-	*LETIMER0_CTRL |= (1 << 9); 
-	*CMU_LFACLKEN0 |= (1 << 2);
-	*LETIMER0_TOP = 1;
+void setupLowEnergyTimer(uint16_t freq)
+{
+	*CMU_HFCORECLKEN0 |= CMU_HFCORECLKEN0_LE;
+	*CMU_OSCENCMD = CMU_OSCENCMD_LFRCOEN;
+	*CMU_LFACLKEN0 |= CMU_LFACLKEN0_LETIMER0;
+	*LETIMER0_CTRL |= LETIMER0_CTRL_COMP0TOP;
+	*LETIMER0_COMP0 = FCPU/freq;
 	*LETIMER0_IEN = 1;
 	*LETIMER0_CMD = 1;
 }

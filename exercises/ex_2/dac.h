@@ -2,7 +2,6 @@
 #define _DAC_H_
 
 #include <stdint.h>
-#include "efm32gg.h"
 
 #define TABLE_LENGTH 512
 

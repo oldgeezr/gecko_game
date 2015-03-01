@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "efm32gg.h"
 
 #define SINGLE_ENDED (0 << 1)
 #define DIFFERENTIAL (1 << 1)
@@ -25,12 +26,12 @@ void setupDAC(void)
    *DAC0_CH1CTRL = true;
 }
 
-void disableDAC(void) 
+void disableDAC(void)
 {
 	*CMU_HFPERCLKEN0 &= ~(HFPER_DAC0);
 }
 
-void setupDMA(void) 
+void setupDMA(void)
 {
 	*DMA_CH0_CTRL = (1 << 19) | (1 << 17); //DAC0
 
