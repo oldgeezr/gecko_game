@@ -3,7 +3,19 @@
 
 #include "efm32gg.h"
 
-#define LED_MASK 0x00FF
+
+/* Register masks */
+#define SWITCH_1  0x8000
+#define SWITCH_2  0x4000
+#define SWITCH_3  0x2000
+#define SWITCH_4  0x1000
+#define SWITCH_5  0x0800
+#define SWITCH_6  0x0400
+#define SWITCH_7  0x0200
+#define SWITCH_8  0x0100
+
+#define LEDS_MASK  0x00FF
+
 
 /* function to set up GPIO mode and interrupts*/
 void setupGPIO()
@@ -24,7 +36,7 @@ void setupGPIO()
 
 void decimalToLed(uint8_t val)
 {
-  *GPIO_PA_DOUT = ~( ((uint16_t) val) & LED_MASK );
+  *GPIO_PA_DOUT = ~( ((uint16_t) val) & LEDS_MASK );
 }
 
 
