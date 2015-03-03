@@ -5,26 +5,38 @@
 
 #define SAMPLE_FREQ 44100
 
-/* Declaration of peripheral setup functions */
-void setupGPIO();
-void setupDAC();
-void setupTimer(uint32_t period);
-void setupLowEnergyTimer();
-void setupPRS(void);
-void setupDMA(void);
+static inline void waitForInterrupt(void)
+{
+  __asm volatile ("wfi");
+}
+
+static inline void setupNVIC(void)
+{
+  // Enable interrupt for TIMER1, GPIO_EVEN, GPIO_ODD, TIMER1 and LETIMER1
+  *ISER0 |= 0x802 | (1 << 12) | (1 << 26);
+}
+
+static inline void enableDeepsleep(void) {
+	*SCR = 6;
+}
+
+static inline void disableRamBlocks(void) {
+	*EMU_MEMCTRL = 4;
+}
 
 int main(void)
 {
+  //disableRamBlocks();
+
   setupGPIO();
   //setupPRS();
   //setupDMA();
   setupDAC();
   setupLowEnergyTimer();
 
-  *ISER0 = 0x802 | (1 << 12) | (1 << 26);
-  *SCR = 6;
-  //*EMU_MEMCTRL = 7;
-  __asm ("wfi");
+  setupNVIC();
+  enableDeepsleep();
+  waitForInterrupt();
 
   for (;;) {}
 }

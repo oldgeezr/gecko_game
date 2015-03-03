@@ -13,6 +13,9 @@ void setupDAC(void)
 void disableDAC(void) 
 {
 	*CMU_HFPERCLKEN0 &= ~(HFPER_DAC0);
+	*DAC0_CH0CTRL = 0;
+    *DAC0_CH1CTRL = 0;
+    *DAC0_CTRL = 0;
 }
 
 void setupDMA(void) 

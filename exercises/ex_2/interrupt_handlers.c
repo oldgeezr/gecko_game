@@ -54,27 +54,29 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 
 	if (*GPIO_PC_DIN != 0xff)
 	{
+		setupDAC();
 		setupLowEnergyTimer();
 		switch(*GPIO_PC_DIN) 
 		{
 			case SWITCH_1:
 				global_freq = A;
-				decimalToLed(1);
+				setLed(1);
 				break;
 			case SWITCH_3:
 				global_freq = B;
-				decimalToLed(3);
+				setLed(3);
 				break;
 			case SWITCH_5:
 				global_freq	= C;
-				decimalToLed(5);
+				setLed(5);
 				break;
 			case SWITCH_7:
 				global_freq = D;
-				decimalToLed(7);
+				setLed(7);
 				break;
 		}
 	} else {
+		disableDAC();
 		disableLowEnergyTimer();
 		*GPIO_PA_DOUT = 0xffff;
 	}
@@ -87,26 +89,28 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 	//*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
 
 	if (*GPIO_PC_DIN != 0xff) {
+		setupDAC();
 		setupLowEnergyTimer();
 		switch(*GPIO_PC_DIN) {
 			case SWITCH_2:
 				global_freq = E;
-				decimalToLed(2);
+				setLed(2);
 				break;
 			case SWITCH_4:
 				global_freq = F;
-				decimalToLed(4);
+				setLed(4);
 				break;
 			case SWITCH_6:
 				global_freq = G;
-				decimalToLed(6);
+				setLed(6);
 				break;
 			case SWITCH_8:
 				global_freq = Eb;
-				decimalToLed(8);
+				setLed(8);
 				break;
 		}
 	} else {
+		disableDAC();
 		disableLowEnergyTimer();
 		*GPIO_PA_DOUT = 0xffff;
 	}
