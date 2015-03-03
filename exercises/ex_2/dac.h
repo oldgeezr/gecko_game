@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <math.h>
 #include "efm32gg.h"
 
 #define DIFFERENTIAL (1 << 0)
@@ -22,6 +23,20 @@
 #define CYCLE_CTRL_BASIC 0x01
 #define CYCLE_CTRL_AUTO_REQ 0x02
 #define CYCLE_CTRL_PING_PONG 0x03
+
+#define SAMPLING_FREQ 32768
+
+#define PI (3.141592653589793)
+
+#define A 440
+#define B 494
+#define Bb 466
+#define C 261
+#define D 294
+#define E 330
+#define Eb 311
+#define F 350
+#define G 392
 
 static uint16_t dma_buffer[DMA_BUFFER_SIZE] = {
 	0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 
@@ -70,19 +85,34 @@ static inline void playSine(void)
 	}
 }
 
-static inline void playSquare(void) 
+static inline uint16_t dacOutputLevel(uint16_t amplitude, double angle, double N) {
+	return (amplitude/2 + amplitude*sin(((2*PI)/N)*angle));
+}
+
+static inline void playTone(uint16_t tone_freq) 
 {
-	static uint16_t index = 0;
-	if (index == 1)
+	static uint16_t i = 0;
+	uint16_t N = SAMPLING_FREQ/(tone_freq*10);
+	*DAC0_COMBDATA = dacOutputLevel(1000,i,N);
+	i = i % N;
+	i++;
+}
+
+static inline void playSquare(uint16_t tone) 
+{
+	uint16_t N = (2*SAMPLING_FREQ)/tone;
+
+	static uint16_t i = 0;
+
+	if (i < N/2)
 	{
-		writeDAC(0x0ff);
-		index = 0;
-	} 
-	else 
-	{
-		writeDAC(0x000);
-		index++;
+		writeDAC(500);
 	}
+	else {
+		writeDAC(0);
+	}
+	i %= N;
+	i++;
 }
 
 #endif

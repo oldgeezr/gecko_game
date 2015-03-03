@@ -16,13 +16,14 @@ void setupDMA(void);
 int main(void)
 {
   setupGPIO();
-  setupPRS();
-  setupDMA();
+  //setupPRS();
+  //setupDMA();
   setupDAC();
   setupLowEnergyTimer();
 
   *ISER0 = 0x802 | (1 << 12) | (1 << 26);
   *SCR = 6;
+  //*EMU_MEMCTRL = 7;
   __asm ("wfi");
 
   for (;;) {}
