@@ -2,6 +2,12 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+#include "gpio.h"
+#include "prs.h"
+#include "dac.h"
+#include "dma.h"
+#include "timer.h"
+
 
 #define SAMPLE_FREQ 44100
 

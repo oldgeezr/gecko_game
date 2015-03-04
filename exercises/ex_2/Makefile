@@ -11,11 +11,14 @@ LDFLAGS=-mcpu=cortex-m3 -mthumb -g -lgcc -lc -lcs3 -lcs3unhosted -lefm32gg -Llib
 ASFLAGS=-mcpu=cortex-m3 -mthumb -g
 LINKERSCRIPT=lib/efm32gg.ld
 
+SOURCES = $(shell find -name "*.c")
+OBJECTS = $(SOURCES:.c=.o)
+
 ex2.bin : ex2.elf
 	${OBJCOPY} -O binary $< $@
 
-ex2.elf : ex2.o timer.o dac.o gpio.o interrupt_handlers.o
-	${LD} -T ${LINKERSCRIPT} $^ -o $@ ${LDFLAGS} 
+ex2.elf : $(OBJECTS)
+	${LD} -T ${LINKERSCRIPT} $^ -o $@ ${LDFLAGS}
 
 %.o : %.c
 	${CC} ${CFLAGS} -c $< -o $@
@@ -26,4 +29,4 @@ upload :
 
 .PHONY : clean
 clean :
-	-rm -rf *.o *.elf *.bin *.hex 
+	-rm -rf *.o *.elf *.bin *.hex

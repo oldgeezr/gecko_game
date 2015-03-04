@@ -1,36 +1,11 @@
 #include <stdint.h>
-#include <stdbool.h>
+#include "interrupt_handlers.h"
 #include "dac.h"
+#include "sounds.h"
+#include "timer.h"
+#include "gpio.h"
 
 #include "efm32gg.h"
-
-#define SWITCH_1  0xfe
-#define SWITCH_2  0xfd
-#define SWITCH_3  0xfb
-#define SWITCH_4  0xf7
-#define SWITCH_5  0xef
-#define SWITCH_6  0xdf
-#define SWITCH_7  0xbf
-#define SWITCH_8  0x7f
-
-void enableLowEnergyTimer(void) 
-{
-  *CMU_HFCORECLKEN0 |= (1 << 4);
-}
-
-void disableLowEnergyTimer(void) 
-{
-	*CMU_OSCENCMD &= ~(1 << 6);
-	*CMU_HFCORECLKEN0 &= (1 << 4);
-	*LETIMER0_CTRL &= (1 << 9);
-	*CMU_LFACLKEN0 &= (1 << 2);
-	*LETIMER0_TOP = 0;
-	*LETIMER0_IEN = 0;
-	*LETIMER0_CMD = 0;
-}
-
-
-uint16_t global_freq = A;
 
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
@@ -56,7 +31,7 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 	{
 		setupDAC();
 		setupLowEnergyTimer();
-		switch(*GPIO_PC_DIN) 
+		switch(*GPIO_PC_DIN)
 		{
 			case SWITCH_1:
 				global_freq = A;
