@@ -12,7 +12,7 @@
 #define HFPER_DAC0    (1 << 17)
 #define PRSCH0        (1 << 0)
 
-void setupDAC(void);
+void setupDAC(uint8_t PRS);
 void disableDAC(void);
 void writeDAC(uint16_t data);
 

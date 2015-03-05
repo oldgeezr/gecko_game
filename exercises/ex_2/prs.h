@@ -4,5 +4,6 @@
 #define HFPER_PRS     (1 << 15)
 
 void setupPRS(void);
+void disablePRS(void);
 
 #endif

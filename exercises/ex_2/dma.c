@@ -38,4 +38,17 @@ void setupDMA(void)
   *DMA_CHENS = 1;
 }
 
+void disableDMA(void)
+{
+  *CMU_HFCORECLKEN0 &= ~(1 << 0); //Eable DMA clock
+  *DMA_CTRLBASE = 0;
+  *DMA_CONFIG = 0; //Enable DMA
+
+  *DMA_CH0_CTRL = 0; //Select DAC0 as source
+  *DMA_CH0_LOOP = 0;
+
+  *DMA_CHALTC = 0;
+  *DMA_CHENS = 0;
+}
+
 // SHOULD HAVE A DMA DISABLE FUNCTION

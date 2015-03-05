@@ -4,10 +4,11 @@
 #include "sounds.h"
 #include "timer.h"
 #include "gpio.h"
+#include "prs.h"
+#include "dma.h"
 
 #include "efm32gg.h"
 
-/* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) DMA_IRQHandler()
 {
   *DMA_IFC = 1;
@@ -17,14 +18,11 @@ void __attribute__ ((interrupt)) DMA_IRQHandler()
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
   *TIMER1_IFC = 1;
-  *GPIO_PA_DOUTTGL = 0xffff;
 }
 
 void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
 {
 	*LETIMER0_IFC = 1;
-	//*GPIO_PA_DOUTTGL = 0xffff;
-	//playSquare(440);
 	playTone(global_freq);
 }
 
@@ -35,7 +33,7 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 
 	if (*GPIO_PC_DIN != 0xff)
 	{
-		setupDAC();
+		setupDAC(0);
 		setupLowEnergyTimer();
 		switch(*GPIO_PC_DIN)
 		{
@@ -51,15 +49,24 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 				global_freq	= C;
 				setLed(5);
 				break;
-			case SWITCH_7:
-				global_freq = D;
-				setLed(7);
+			case SWITCH_7: // Change to DMA mode
+        //*SCR = 2;
+		    //disableLowEnergyTimer();
+		    //setupDAC(1);
+				//setLed(7);
+        //setupTimer(44100);
+        //setupPRS();
+        //setupDMA();
 				break;
 		}
 	} else {
+    //disableDMA();
+    //disablePRS();
+		//disableTimer();
 		disableDAC();
-		disableLowEnergyTimer();
+    disableLowEnergyTimer();
 		*GPIO_PA_DOUT = 0xffff;
+    //*SCR = 6;
 	}
 }
 
@@ -70,7 +77,7 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 	//*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
 
 	if (*GPIO_PC_DIN != 0xff) {
-		setupDAC();
+		setupDAC(0);
 		setupLowEnergyTimer();
 		switch(*GPIO_PC_DIN) {
 			case SWITCH_2:
@@ -92,7 +99,7 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 		}
 	} else {
 		disableDAC();
-		disableLowEnergyTimer();
+    disableLowEnergyTimer();
 		*GPIO_PA_DOUT = 0xffff;
 	}
 }

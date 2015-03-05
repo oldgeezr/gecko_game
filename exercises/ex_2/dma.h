@@ -47,5 +47,6 @@ typedef struct
 } controlData_t;
 
 void setupDMA(void);
+void disableDMA(void);
 
 #endif

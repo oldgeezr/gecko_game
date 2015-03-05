@@ -2,6 +2,7 @@
 #define _TIMER_H_
 
 #define LETIMER_IEN_UF      (1 << 2)
+#define LETIMER_IEN_COMP0   (1 << 0)
 #define FCPU                14000000UL
 
 void setupTimer(uint16_t freq);

@@ -18,7 +18,7 @@ static inline void waitForInterrupt(void)
 static inline void setupNVIC(void)
 {
   // Enable interrupt for TIMER1, GPIO_EVEN, GPIO_ODD, TIMER1 and LETIMER1
-  *ISER0 |= NVIC_GPIO_EVEN | NVIC_GPIO_ODD | NVIC_DMA; // | NVIC_TIMER | NVIC_LETIMER0;
+  *ISER0 |= NVIC_GPIO_EVEN | NVIC_GPIO_ODD | NVIC_DMA | NVIC_LETIMER0;
 }
 
 static inline void enableDeepsleep(void) {
@@ -33,15 +33,11 @@ int main(void)
 {
   //disableRamBlocks();
 
-  // setupGPIO();
-  setupTimer(44100);
-  setupPRS();
-  setupDMA();
-  setupDAC();
-  // setupLowEnergyTimer();
+  setupGPIO();
+  //setupLowEnergyTimer();
 
-  // setupNVIC();
-  // enableDeepsleep();
+  setupNVIC();
+  enableDeepsleep();
   waitForInterrupt();
 
   for (;;) {}
