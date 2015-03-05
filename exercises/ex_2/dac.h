@@ -10,6 +10,7 @@
 #define OUTMODE_PIN   (0x1 << 4)
 #define PRESC 		    (0x5 << 16)
 #define HFPER_DAC0    (1 << 17)
+#define PRSCH0        (1 << 0)
 
 void setupDAC(void);
 void disableDAC(void);

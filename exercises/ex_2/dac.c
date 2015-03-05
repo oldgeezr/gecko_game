@@ -5,8 +5,8 @@ void setupDAC(void)
 {
    *CMU_HFPERCLKEN0 |= HFPER_DAC0;
    *DAC0_CTRL = OUTMODE_PIN | PRESC;
-   *DAC0_CH0CTRL = (1 << 0); //| (1 << 2);
-   *DAC0_CH1CTRL = (1 << 0); //| (1 << 2);
+   *DAC0_CH0CTRL = PRSCH0; //| (1 << 2);
+   *DAC0_CH1CTRL = PRSCH0; //| (1 << 2);
 }
 
 void disableDAC(void)
