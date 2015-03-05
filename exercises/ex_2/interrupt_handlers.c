@@ -8,6 +8,12 @@
 #include "efm32gg.h"
 
 /* TIMER1 interrupt handler */
+void __attribute__ ((interrupt)) DMA_IRQHandler()
+{
+  *DMA_IFC = 1;
+  *DMA_CHENS = 1;
+}
+
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
   *TIMER1_IFC = 1;

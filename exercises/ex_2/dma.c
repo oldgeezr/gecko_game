@@ -5,14 +5,23 @@
 
 void setupDMA(void)
 {
-  *DMA_CH0_CTRL = (0x0A << 16); //DAC0
-  *DMA_CH0_LOOP = (1 << 16); //Enable looping
+  *CMU_HFCORECLKEN0 |= (1 << 0); //Eable DMA clock
+  *DMA_CTRLBASE = (uint32_t)(dmaControlBlock); //Init ctrl base
+  *DMA_CONFIG = 1; //Enable DMA
 
-  configDMA_t config;
-  config.src_data_end_ptr = (uint32_t *)(dma_buffer + DMA_BUFFER_SIZE);
-  config.dst_data_end_ptr = ((uint32_t *)DAC0_COMBDATA);
+  *DMA_CH0_CTRL = (0x0A << 16); //Select DAC0 as source
+  *DMA_CH0_LOOP |= (1 << 16); //Enable loop
+  *DMA_CH0_LOOP |= (DMA_BUFFER_SIZE - 1); //Set loop size
+
+  configDMA_t *primDescr;
+  configDMA_t *descr;
+
+  primDescr = (configDMA_t *)(*DMA_CTRLBASE);
+  descr = (configDMA_t *)(*DMA_ALTCTRLBASE);
+  descr = primDescr;
 
   controlData_t control;
+
   control.dst_inc = NO_INCREMENT;
   control.dst_size = WORD;
   control.src_inc = WORD;
@@ -20,21 +29,13 @@ void setupDMA(void)
   control.n_minus_1 = (DMA_BUFFER_SIZE - 1);
   control.cycle_ctrl = CYCLE_CTRL_BASIC;
 
-  config.channel_cfg = (control.dst_inc << 30) | (control.dst_size << 28) | (control.src_inc << 26)
-             | (control.src_size << 24) | (control.n_minus_1 << 4) | (control.cycle_ctrl << 0);
+  primDescr->src_data_end_ptr = (void *)((uint32_t)dma_buffer + (control.n_minus_1 << 2));
+  primDescr->dst_data_end_ptr = (void *)((uint32_t)DAC0_COMBDATA);
+  primDescr->channel_cfg = (control.dst_inc << 30) | (control.dst_size << 28) | (control.src_inc << 26)
+    | (control.src_size << 24) | (control.n_minus_1 << 4) | (control.cycle_ctrl << 0);
 
-  //SrcEngPtr
-  *(DMA_CTRLBASE + 0x000) = *(config.src_data_end_ptr);
-  //DstEndPtr
-  *(DMA_CTRLBASE + 0x004) = *(config.dst_data_end_ptr);
-  //ch_cfg
-  *(DMA_CTRLBASE + 0x008) = config.channel_cfg;
-
-  *DMA_CONFIG = true;
-  *DMA_CHUSEBURSTS = true;
-  *DMA_REQMASKC = true;
-  *DMA_CHALTC = true;
-  *DMA_CHENS = true;
+  *DMA_CHALTC = 1;
+  *DMA_CHENS = 1;
 }
 
 // SHOULD HAVE A DMA DISABLE FUNCTION
