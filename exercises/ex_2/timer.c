@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "efm32gg.h"
 #include "timer.h"
@@ -26,13 +25,9 @@ void setupLowEnergyTimer(void)
 
 void disableLowEnergyTimer(void)
 {
-	*LETIMER0_CTRL &= ~(1 << 9);
-	*LETIMER0_COMP0 = 0;
-	*LETIMER0_IEN = 0;
-	*LETIMER0_CMD = 0;
+  *LETIMER0_CMD = (1 << 1);
+	*CMU_OSCENCMD |= (1 << 7);
 	*CMU_OSCENCMD &= ~(1 << 6);
-	*CMU_LFACLKEN0 &= ~(1 << 2);
-	*CMU_HFCORECLKEN0 &= ~(1 << 4);
 }
 
 void disableTimer(void)

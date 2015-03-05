@@ -54,7 +54,7 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 		    disableLowEnergyTimer();
 		    setupDAC(1);
 				setLed(7);
-        setupTimer(44100);
+        setupTimer(SAMPLE_FREQ);
         setupPRS();
         setupDMA();
 				break;
@@ -74,11 +74,10 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
 	*GPIO_IFC = 0xff;
-	//*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
 
 	if (*GPIO_PC_DIN != 0xff) {
 		setupDAC(0);
-		setupLowEnergyTimer();
+		 setupLowEnergyTimer();
 		switch(*GPIO_PC_DIN) {
 			case SWITCH_2:
 				global_freq = E;

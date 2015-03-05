@@ -2,28 +2,17 @@
 #include "efm32gg.h"
 #include "sounds.h"
 #include "dac.h"
-
-/*void playSine(void)
-{
-	static uint16_t index = 0;
-	writeDAC(dma_buffer[index++]);
-	if (index == DMA_BUFFER_SIZE)
-	{
-		index = 0;
-	}
-}*/
-
-// MAYBE NOT NECESSARY TO USE A WRITE DAC FUNC OR SHOULD BE CONSEQUENT
+#include "math.h"
 
 static inline uint16_t dacOutputLevel(uint16_t amplitude, double angle, double N) {
-	return (amplitude/2 + amplitude*sin(((2*PI)/N)*angle));
+	return (amplitude + amplitude*sin(((2*PI)/N)*angle));
 }
 
 void playTone(uint16_t tone_freq)
 {
 	static uint16_t i = 0;
 	uint16_t N = SAMPLING_FREQ/(tone_freq*10);
-	*DAC0_COMBDATA = dacOutputLevel(1000,i,N);
+	writeDAC(dacOutputLevel(500,i,N));
 	i = i % N;
 	i++;
 }

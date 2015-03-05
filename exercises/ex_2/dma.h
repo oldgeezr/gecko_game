@@ -16,7 +16,7 @@
 #define DMACTRL_CH_CNT      16
 #define DMACTRL_ALIGNMENT   512
 
-static uint16_t dma_buffer[DMA_BUFFER_SIZE] = {
+static const uint16_t dma_buffer[DMA_BUFFER_SIZE] = {
   0, 50, 100, 150, 200, 250, 300, 350, 400, 450,
   500, 550, 600, 650, 700, 750, 800, 850, 900, 950,
   900, 850, 800, 750, 700, 650, 600, 550, 500, 450,

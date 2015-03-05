@@ -14,6 +14,7 @@
 #define Eb 311
 #define F 350
 #define G 392
+#define X 3000
 
 void playTone(uint16_t tone_freq);
 void playSquare(uint16_t tone);

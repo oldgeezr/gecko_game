@@ -24,5 +24,7 @@ void disableDAC(void)
 
 void writeDAC(uint16_t data)
 {
-	*DAC0_COMBDATA = data;
+	//*DAC0_COMBDATA = data;
+	*DAC0_CH0DATA = data;
+	*DAC0_CH1DATA = data;
 }

@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include "dma.h"
 #include "efm32gg.h"
 
@@ -14,11 +13,8 @@ void setupDMA(void)
   *DMA_CH0_LOOP |= (DMA_BUFFER_SIZE - 1); //Set loop size
 
   configDMA_t *primDescr;
-  configDMA_t *descr;
 
   primDescr = (configDMA_t *)(*DMA_CTRLBASE);
-  descr = (configDMA_t *)(*DMA_ALTCTRLBASE);
-  descr = primDescr;
 
   controlData_t control;
 
@@ -41,14 +37,10 @@ void setupDMA(void)
 void disableDMA(void)
 {
   *DMA_CTRLBASE = 0;
-  *DMA_CONFIG = 0; //Enable DMA
-
-  *DMA_CH0_CTRL = 0; //Select DAC0 as source
+  *DMA_CONFIG = 0;
+  *DMA_CH0_CTRL = 0;
   *DMA_CH0_LOOP = 0;
-
   *DMA_CHALTC = 0;
   *DMA_CHENS = 0;
-  *CMU_HFCORECLKEN0 &= ~(1 << 0); //Eable DMA clock
+  *CMU_HFCORECLKEN0 &= ~(1 << 0);
 }
-
-// SHOULD HAVE A DMA DISABLE FUNCTION

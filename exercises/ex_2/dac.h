@@ -2,9 +2,6 @@
 #define _DAC_H_
 
 #include <stdint.h>
-#include <stdio.h>
-#include <math.h>
-#include "efm32gg.h"
 
 #define DIFFERENTIAL  (1 << 0)
 #define OUTMODE_PIN   (0x1 << 4)
