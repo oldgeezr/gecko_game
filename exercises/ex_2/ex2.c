@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "dac.h"
 
 #include "efm32gg.h"
 
@@ -12,8 +13,9 @@ static inline void waitForInterrupt(void)
 
 static inline void setupNVIC(void)
 {
-  // Enable interrupt for TIMER1, GPIO_EVEN, GPIO_ODD, TIMER1 and LETIMER1
-  *ISER0 |= 0x802 | (1 << 12) | (1 << 26);
+  // Enable interrupt for TIMER1, GPIO_EVEN, GPIO_ODD, TIMER1, LETIMER0 and DMA
+  *ISER0 |= 0x802 | (1 << 0); // | (1 << 12) | (1 << 26);
+  //0x802 - 0 b 1000 0000 0010 - GPIO
 }
 
 static inline void enableDeepsleep(void) {
@@ -27,15 +29,21 @@ static inline void disableRamBlocks(void) {
 int main(void)
 {
   //disableRamBlocks();
-
-  setupGPIO();
-  //setupPRS();
-  //setupDMA();
+  /*
+  uint16_t i = 0;
+  for (i = 0; i < 8000; i++)
+  {
+      //dma_buffer[i] = i/8000;
+  }
+  */
+  //setupLowEnergyTimer();
+  setupTimer(0);
+  //setupGPIO();
+  setupPRS();
   setupDAC();
-  setupLowEnergyTimer();
-
-  setupNVIC();
-  enableDeepsleep();
+  setupDMA();
+  //setupNVIC();
+  //enableDeepsleep();
   waitForInterrupt();
 
   for (;;) {}
