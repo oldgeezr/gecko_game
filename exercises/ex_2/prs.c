@@ -10,7 +10,7 @@ void setupPRS(void)
 
 void disablePRS(void)
 {
-  *CMU_HFPERCLKEN0 &= ~HFPER_PRS;
   *PRS_CH0_CTRL = 0;
+  *CMU_HFPERCLKEN0 &= ~HFPER_PRS;
 }
 

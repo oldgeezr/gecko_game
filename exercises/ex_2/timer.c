@@ -15,30 +15,29 @@ void setupTimer(uint16_t freq)
 
 void setupLowEnergyTimer(void)
 {
-	*CMU_OSCENCMD = (1 << 6);
+	*CMU_OSCENCMD |= (1 << 6);
   *CMU_HFCORECLKEN0 |= (1 << 4);
 	*LETIMER0_CTRL |= (1 << 9);
 	*CMU_LFACLKEN0 |= (1 << 2);
-	*LETIMER0_TOP = 1;
+	*LETIMER0_COMP0 = 1;
 	*LETIMER0_IEN = LETIMER_IEN_COMP0;
 	*LETIMER0_CMD = 1;
 }
 
 void disableLowEnergyTimer(void)
 {
-	*CMU_OSCENCMD &= ~(1 << 6);
-	*CMU_HFCORECLKEN0 &= ~(1 << 4);
 	*LETIMER0_CTRL &= ~(1 << 9);
-	*CMU_LFACLKEN0 &= ~(1 << 2);
-	*LETIMER0_TOP = 0;
+	*LETIMER0_COMP0 = 0;
 	*LETIMER0_IEN = 0;
 	*LETIMER0_CMD = 0;
+	*CMU_OSCENCMD &= ~(1 << 6);
+	*CMU_LFACLKEN0 &= ~(1 << 2);
+	*CMU_HFCORECLKEN0 &= ~(1 << 4);
 }
 
 void disableTimer(void)
 {
-  *CMU_HFPERCLKEN0 &= ~(CMU2_HFPERCLKEN0_TIMER1);
-  *TIMER1_TOP = 0;
   *TIMER1_IEN = 0;
   *TIMER1_CMD = 0;
+  *CMU_HFPERCLKEN0 &= ~CMU2_HFPERCLKEN0_TIMER1;
 }

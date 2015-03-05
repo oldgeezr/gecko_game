@@ -34,7 +34,7 @@ int main(void)
   //disableRamBlocks();
 
   setupGPIO();
-  //setupLowEnergyTimer();
+  // setupLowEnergyTimer();
 
   setupNVIC();
   enableDeepsleep();

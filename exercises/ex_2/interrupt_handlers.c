@@ -50,23 +50,23 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 				setLed(5);
 				break;
 			case SWITCH_7: // Change to DMA mode
-        //*SCR = 2;
-		    //disableLowEnergyTimer();
-		    //setupDAC(1);
-				//setLed(7);
-        //setupTimer(44100);
-        //setupPRS();
-        //setupDMA();
+        *SCR = 2;
+		    disableLowEnergyTimer();
+		    setupDAC(1);
+				setLed(7);
+        setupTimer(44100);
+        setupPRS();
+        setupDMA();
 				break;
 		}
 	} else {
-    //disableDMA();
-    //disablePRS();
-		//disableTimer();
-		disableDAC();
+    disableDMA();
+    disablePRS();
+		disableTimer();
     disableLowEnergyTimer();
+		disableDAC();
 		*GPIO_PA_DOUT = 0xffff;
-    //*SCR = 6;
+    *SCR = 6;
 	}
 }
 
@@ -98,8 +98,8 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 				break;
 		}
 	} else {
-		disableDAC();
     disableLowEnergyTimer();
+		disableDAC();
 		*GPIO_PA_DOUT = 0xffff;
 	}
 }
