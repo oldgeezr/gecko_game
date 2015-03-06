@@ -9,7 +9,7 @@ void setupTimer(uint16_t freq)
 {
   *CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
   //*TIMER1_CTRL = (0x02 << 24); //Prescale 64
-  *TIMER1_TOP = FCPU / 8000;
+  *TIMER1_TOP = FCPU / 44100;
   *TIMER1_IEN = 1;
   *TIMER1_CMD = 1;
 }

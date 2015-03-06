@@ -58,7 +58,7 @@ void setupDMA(void)
 void setupPRS(void)
 {
 	*CMU_HFPERCLKEN0 |= HFPER_PRS;
-	//*PRS_CH0_CTRL = (0x34 << 16); //source LETIMER0
+	*PRS_CH0_CTRL = (0x34 << 16); //source LETIMER0
 	*PRS_CH0_CTRL = (0x1D << 16) | (0x1 << 0); //source TIMER1 and overflow interrupt
 }
 
