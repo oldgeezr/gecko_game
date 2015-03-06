@@ -2,7 +2,6 @@
 #define _INTERRUPT_HANDLERS_H_
 
 #include <stdint.h>
-#include "sounds.h"
 
 #define SWITCH_1  0xfe
 #define SWITCH_2  0xfd
@@ -15,10 +14,10 @@
 
 uint16_t global_freq = A;
 
+void __attribute__ ((interrupt)) DMA_IRQHandler();
 void __attribute__ ((interrupt)) TIMER1_IRQHandler();
 void __attribute__ ((interrupt)) LETIMER0_IRQHandler();
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler();
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler();
-void __attribute__ ((interrupt)) DMA_IRQHandler();
 
 #endif
