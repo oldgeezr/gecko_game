@@ -3,9 +3,24 @@
 #include "sounds.h"
 #include "dac.h"
 #include "math.h"
+#include "song.h"
+//#include "battle003.h"
 
 static inline uint16_t dacOutputLevel(uint16_t amplitude, double angle, double N) {
 	return (amplitude + amplitude*sin(((2*PI)/N)*angle));
+}
+
+void playSongArray() {
+
+	static int i = 0;
+	//static uint32_t SONG_LENGTH = sizeof(battle003);
+  uint8_t sound = SONG1[i];
+  //uint8_t sound = battle003[i];
+  *DAC0_CH0DATA = (sound << 2);
+  *DAC0_CH1DATA = (sound << 2);
+	i = i % (SONG1_LENGTH-1);
+	i++;
+
 }
 
 void playTone(uint16_t tone_freq)

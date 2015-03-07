@@ -14,6 +14,7 @@
 #define SWITCH_8  0x7f
 
 uint16_t global_freq = A;
+uint16_t STARTUPSONG = 0;
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler();
 void __attribute__ ((interrupt)) LETIMER0_IRQHandler();

@@ -17,6 +17,7 @@
 #define X 3000
 
 void playTone(uint16_t tone_freq);
+void playSongArray();
 void playSquare(uint16_t tone);
 
 #endif

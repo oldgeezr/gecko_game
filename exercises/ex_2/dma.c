@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "dma.h"
 //#include "battle003.h"
-#include "song.h"
+//#include "song.h"
 #include "efm32gg.h"
 
 void setupDMA(void)
@@ -12,7 +12,7 @@ void setupDMA(void)
 
   *DMA_CH0_CTRL = (0x0A << 16); //Select DAC0 as source
   *DMA_CH0_LOOP |= (1 << 16); //Enable loop
-  *DMA_CH0_LOOP |= (SONG_LENGTH - 1); //Set loop size
+  *DMA_CH0_LOOP |= (DMA_BUFFER_SIZE - 1); //Set loop size
 
   configDMA_t *primDescr;
 
@@ -24,10 +24,10 @@ void setupDMA(void)
   control.dst_size = WORD;
   control.src_inc = WORD;
   control.src_size = WORD;
-  control.n_minus_1 = (SONG_LENGTH- 1);
+  control.n_minus_1 = (DMA_BUFFER_SIZE - 1);
   control.cycle_ctrl = CYCLE_CTRL_BASIC;
 
-  primDescr->src_data_end_ptr = (void *)((uint32_t)GERUDO + (control.n_minus_1 << 2));
+  primDescr->src_data_end_ptr = (void *)((uint32_t)dma_buffer + (control.n_minus_1 << 2));
   primDescr->dst_data_end_ptr = (void *)((uint32_t)DAC0_COMBDATA);
   primDescr->channel_cfg = (control.dst_inc << 30) | (control.dst_size << 28) | (control.src_inc << 26)
     | (control.src_size << 24) | (control.n_minus_1 << 4) | (control.cycle_ctrl << 0);
