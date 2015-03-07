@@ -29,7 +29,7 @@ int main(void)
   setupGPIO();
   setupNVIC();
   enableDeepsleep();
-  disableRamBlocks();
+  //disableRamBlocks();
   waitForInterrupt();
 
   for (;;) {}

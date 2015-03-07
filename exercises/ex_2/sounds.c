@@ -12,7 +12,7 @@ void playTone(uint16_t tone_freq)
 {
 	static uint16_t i = 0;
 	uint16_t N = SAMPLING_FREQ/(tone_freq*10);
-	writeDAC(dacOutputLevel(500,i,N));
+	writeDAC(dacOutputLevel(250,i,N));
 	i = i % N;
 	i++;
 }
