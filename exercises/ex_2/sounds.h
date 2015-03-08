@@ -16,8 +16,8 @@
 #define G 392
 #define X 3000
 
-void playTone(uint16_t tone_freq);
-void playSongArray();
-void playSquare(uint16_t tone);
+volatile void playTone(uint16_t tone_freq);
+volatile void playSongArray(void);
+volatile void playSquare(uint16_t tone);
 
 #endif
