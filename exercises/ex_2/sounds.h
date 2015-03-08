@@ -1,8 +1,6 @@
 #ifndef _SOUNDS_H_
 #define _SOUNDS_H_
 
-#include <stdint.h>
-
 #define SAMPLING_FREQ 32768
 
 #define PI (3.141592653589793)
@@ -18,7 +16,8 @@
 #define G 392
 #define X 3000
 
-void playTone   (uint16_t tone_freq);
-void playSquare (uint16_t tone);
+void playTone(uint16_t tone_freq);
+void playStartUpSong(void);
+void playSquare(uint16_t tone);
 
 #endif

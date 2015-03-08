@@ -14,6 +14,10 @@ LINKERSCRIPT=lib/efm32gg.ld
 SOURCES = $(shell find -name "*.c")
 OBJECTS = $(SOURCES:.c=.o)
 
+# HEX file for Simplicity Studio V3
+#ex2.hex : ex2.elf
+#	${OBJCOPY} -O ihex $< $@
+
 ex2.bin : ex2.elf
 	${OBJCOPY} -O binary $< $@
 

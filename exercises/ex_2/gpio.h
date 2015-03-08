@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 void setupGPIO (void);
-void setLed	   (uint8_t pin);
+void setLed    (uint8_t pin);
 void clearLed  (uint8_t pin);
 
 #endif
