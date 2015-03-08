@@ -1,5 +1,7 @@
 #include <stdint.h>
 #include "dma.h"
+//#include "battle003.h"
+//#include "song.h"
 #include "efm32gg.h"
 
 void setupDMA(void)
@@ -19,13 +21,13 @@ void setupDMA(void)
   controlData_t control;
 
   control.dst_inc = NO_INCREMENT;
-  control.dst_size = WORD;
-  control.src_inc = WORD;
-  control.src_size = WORD;
+  control.dst_size = HALFWORD;
+  control.src_inc = HALFWORD;
+  control.src_size = HALFWORD;
   control.n_minus_1 = (DMA_BUFFER_SIZE - 1);
   control.cycle_ctrl = CYCLE_CTRL_BASIC;
 
-  primDescr->src_data_end_ptr = (void *)((uint32_t)dma_buffer + (control.n_minus_1 << 2));
+  primDescr->src_data_end_ptr = (void *)((uint32_t)dma_buffer + (control.n_minus_1 << 1));
   primDescr->dst_data_end_ptr = (void *)((uint32_t)DAC0_COMBDATA);
   primDescr->channel_cfg = (control.dst_inc << 30) | (control.dst_size << 28) | (control.src_inc << 26)
     | (control.src_size << 24) | (control.n_minus_1 << 4) | (control.cycle_ctrl << 0);

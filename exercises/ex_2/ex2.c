@@ -26,10 +26,10 @@ static inline void disableRamBlocks(void) {
 
 int main(void)
 {
+  disableRamBlocks();
   setupGPIO();
   setupNVIC();
   enableDeepsleep();
-  disableRamBlocks();
   waitForInterrupt();
 
   for (;;) {}

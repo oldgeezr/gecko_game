@@ -1,7 +1,7 @@
 #include "efm32gg.h"
 #include "prs.h"
 
-#define HFPER_PRS	(1 << 15)
+#define HFPER_PRS (1 << 15)
 
 void setupPRS(void)
 {

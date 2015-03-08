@@ -13,8 +13,8 @@
 #define CYCLE_CTRL_BASIC      0x01
 #define CYCLE_CTRL_AUTO_REQ   0x02
 #define CYCLE_CTRL_PING_PONG  0x03
-#define DMACTRL_CH_CNT        16
-#define DMACTRL_ALIGNMENT     512
+#define DMACTRL_CH_CNT      16
+#define DMACTRL_ALIGNMENT   512
 
 static const uint16_t dma_buffer[DMA_BUFFER_SIZE] = {
   0, 50, 100, 150, 200, 250, 300, 350, 400, 450,
