@@ -18,6 +18,9 @@ OBJECTS = $(SOURCES:.c=.o)
 #ex2.hex : ex2.elf
 #	${OBJCOPY} -O ihex $< $@
 
+ex2.hex : ex2.elf
+	${OBJCOPY} -O ihex $< $@
+
 ex2.bin : ex2.elf
 	${OBJCOPY} -O binary $< $@
 
