@@ -1,18 +1,16 @@
 #include <stdint.h>
 #include "dma.h"
-//#include "battle003.h"
-//#include "song.h"
 #include "efm32gg.h"
 
 void setupDMA(void)
 {
-  *CMU_HFCORECLKEN0 |= (1 << 0); //Eable DMA clock
-  *DMA_CTRLBASE = (uint32_t)(dmaControlBlock); //Init ctrl base
-  *DMA_CONFIG = 1; //Enable DMA
+  *CMU_HFCORECLKEN0 |= (1 << 0);
+  *DMA_CTRLBASE = (uint32_t)(dmaControlBlock);
+  *DMA_CONFIG = 1;
 
-  *DMA_CH0_CTRL = (0x0A << 16); //Select DAC0 as source
-  *DMA_CH0_LOOP |= (1 << 16); //Enable loop
-  *DMA_CH0_LOOP |= (DMA_BUFFER_SIZE - 1); //Set loop size
+  *DMA_CH0_CTRL = (0x0A << 16);
+  *DMA_CH0_LOOP |= (1 << 16);
+  *DMA_CH0_LOOP |= (DMA_BUFFER_SIZE - 1);
 
   configDMA_t *primDescr;
 
