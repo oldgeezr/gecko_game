@@ -25,7 +25,7 @@ void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
 {
   *LETIMER0_IFC = 1;
   if (STARTUPSONG) {
-    playSongArray();
+    playStartUpSong();
   } else {
     playTone(global_freq);
   }
@@ -35,7 +35,6 @@ void __attribute__ ((interrupt)) LETIMER0_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 {
   *GPIO_IFC = 0xff;
-
   if (*GPIO_PC_DIN != 0xff)
   {
     setupDAC(0);
@@ -79,7 +78,6 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
   *GPIO_IFC = 0xff;
-
   if (*GPIO_PC_DIN != 0xff) {
     setupDAC(0);
     setupLowEnergyTimer();
