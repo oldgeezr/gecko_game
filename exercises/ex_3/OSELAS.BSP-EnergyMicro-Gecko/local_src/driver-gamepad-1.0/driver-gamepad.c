@@ -105,10 +105,10 @@ static int __init gampad_init(void)
 
 static void __exit gamepad_cleanup(void)
 {
-	device_destroy(cl, first);
+	device_destroy(cl, devno);
 	class_destroy(cl);
 	unregister_chrdev_region(devno, 1);
-	cdev_del(&c_dev);
+	cdev_del(&my_cdev);
 	printk("Short life for a small module...\n");
 }
 
