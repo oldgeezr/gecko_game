@@ -13,8 +13,6 @@ obj-m	:= driver-gamepad.o
 # crashes compilation.
 #CFLAGS_MODULE := -mlong-calls
 
-# TEST SSH CONNECTION
-
 modules modules_install clean:
 	$(MAKE) -C $(PTX_KERNEL_DIR) M=$(CURDIR) V=$(V) $@
 
