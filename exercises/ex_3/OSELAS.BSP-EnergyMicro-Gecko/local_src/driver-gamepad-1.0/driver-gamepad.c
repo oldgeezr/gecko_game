@@ -16,9 +16,11 @@
 #include <linux/device.h>
 #include <linux/cdev.h>
 
+// declare device number
 dev_t devno;
 // declare character device
 struct cdev my_cdev;
+// declare device class
 struct class *cl;
 
 /* user program opens the driver */
@@ -64,21 +66,26 @@ static int __init gampad_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
 
+	// register charachter device number
 	if (alloc_chrdev_region(&devno, 0, 1, "gamepad") < 0) return -1;
 
+	// create class sruct
 	if ((cl = class_create(THIS_MODULE, "gamepad")) == NULL) {
 		unregister_chrdev_region(devno, 1);
 		return -1;
 	}
 
+	// create device
 	if (device_create(cl, NULL, devno, NULL, "gamepad") == NULL) {
 		class_destroy(cl);
 		unregister_chrdev_region(devno, 1);
 		return -1;
 	}
 
+	// init character device
 	cdev_init(&my_cdev, &my_fops);
 
+	// add device
 	if (cdev_add(&my_cdev, devno, 1) == -1) {
 		device_destroy(cl, devno);
 		class_destroy(cl);
