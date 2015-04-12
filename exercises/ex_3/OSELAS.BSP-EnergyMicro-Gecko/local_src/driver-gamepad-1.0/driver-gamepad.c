@@ -46,7 +46,7 @@ static ssize_t my_write(struct file *filp, const char __user *buff, size_t count
 }
 
 // struct for file operations. Needed by the kernel
-static struct file operations my_fops = {
+static struct file_operations my_fops = {
 	.owner = THIS_MODULE,
 	.read = my_read,
 	.write = my_write,
