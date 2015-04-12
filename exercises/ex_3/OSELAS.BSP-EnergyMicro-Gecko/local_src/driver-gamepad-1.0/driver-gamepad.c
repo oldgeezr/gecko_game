@@ -16,12 +16,17 @@
 #include <linux/device.h>
 #include <linux/cdev.h>
 
+#include "efm32gg.h"
+
 // declare device number
 dev_t devno;
 // declare character device
 struct cdev my_cdev;
 // declare device class
 struct class *cl;
+// Dunno what this does
+struct siginfo signal_info;
+void __iomem *gpio;
 
 /* user program opens the driver */
 static int my_open(struct inode *inode, struct file *filp) {
@@ -63,8 +68,51 @@ static struct file_operations my_fops = {
  * Returns 0 if successfull, otherwise -1
  */
 
+static inline void memwrite(void *base, uint32_t offset, uint32_t value)
+{
+	*(volatile uint32_t *) ((uint32_t) base + offset) = value;
+}
+
 static int __init gampad_init(void)
 {
+	// request and map memory
+	check_mem_region(GPIO_BASE, GPIO_SIZE);
+	request_mem_region(GPIO_BASE, GPIO_SIZE, NAME);
+
+	// makes memory accessable and gets the base value for GPIO operations
+	gpio = ioremap_nocache(GPIO_BASE, GPIO_SIZE);
+
+	// set up GPIO
+
+	memwrite(gpio, GPIO_PA_CTRL, 0x2);
+	// set pins A8-15 to output
+	memwrite(gpio, GPIO_PA_MODEH, 0x55555555);
+	memwrite(gpio, GPIO_PA_DOUT, 0xFF00);
+
+	// sets pins 1-7 on PC to input
+	memwrite(gpio, GPIO_PC_MODEL, 0x33333333);
+	memwrite(gpio, GPIO_PC_DOUT, 0xFF);
+
+	// enable interrupt generation
+	memwrite(gpio, GPIO_IEN, 0xFF);
+	memwrite(gpio, GPIO_EXTIPSELL, 0x22222222);
+
+	// trigger interrupt on button press
+	memwrite(gpio, GPIO_EXTIFALL, 0xFF);
+
+	// clear interrupts
+	memwrite(gpio, GPIO_IFC, 0xFFFF);
+
+	// enable interruption generation
+	request_irq(17, interrupt_handler, 0, NAME, NULL);
+	request_irq(18, interrupt_handler, 0, NAME, NULL);
+
+
+	// setup signal sending, to trigger interrupts in the game.
+	memset(&signal_info, 0, sizeof(struct siginfo));
+	signal_info.si_signo = 50;
+	signal_info.si_code = SI_QUEUE;
+
 	printk("Hello World, here is your module speaking\n");
 
 	// register charachter device number
@@ -85,6 +133,7 @@ static int __init gampad_init(void)
 
 	// init character device
 	cdev_init(&my_cdev, &my_fops);
+	my_cdev.owner = THIS_MODULE;
 
 	// add device
 	if (cdev_add(&my_cdev, devno, 1) == -1) {
@@ -110,6 +159,14 @@ static void __exit gamepad_cleanup(void)
 	class_destroy(cl);
 	unregister_chrdev_region(devno, 1);
 	cdev_del(&my_cdev);
+
+	//Release interrupt handlers
+	free_irq(17, NULL);
+	free_irq(18, NULL);
+
+	//Release memory
+	iounmap(gpio);
+	release_mem_region(GPIO_BASE, GPIO_SIZE);
 	printk("Short life for a small module...\n");
 }
 
