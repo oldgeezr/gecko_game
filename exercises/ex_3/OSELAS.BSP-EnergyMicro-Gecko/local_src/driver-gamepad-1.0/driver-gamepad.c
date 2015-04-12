@@ -41,7 +41,8 @@ static ssize_t my_read(struct file *filp, char __user *buff, size_t count, loff_
 /* user program writes to the driver */
 static ssize_t my_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp) {
 	printk(KERN_INFO "gamepad_driver: write()\n");
-	return len;
+	// should probably return the length of the write?
+	return 0;
 }
 
 // struct for file operations. Needed by the kernel
