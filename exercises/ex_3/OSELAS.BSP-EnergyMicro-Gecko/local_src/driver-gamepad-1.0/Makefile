@@ -9,8 +9,6 @@ clean:
 else
 
 obj-m	:= driver-gamepad.o
-# removed this decleration because I dont know the purpose and it
-# crashes compilation.
 #CFLAGS_MODULE := -mlong-calls
 
 modules modules_install clean:

@@ -11,12 +11,15 @@
 #include <linux/init.h>
 #include <linux/version.h>
 #include <linux/types.h>
-#include <linux/kdev_t.h>
+#include <linux/interrupt.h>
+//#include <linux/kdev_t.h>
 #include <linux/fs.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
-
+#include <asm/siginfo.h>
 #include "efm32gg.h"
+
+#define NAME "gamepad"
 
 // declare device number
 dev_t devno;
@@ -76,11 +79,11 @@ static inline void memwrite(void *base, uint32_t offset, uint32_t value)
 static int __init gampad_init(void)
 {
 	// request and map memory
-	check_mem_region(GPIO_BASE, GPIO_SIZE);
-	request_mem_region(GPIO_BASE, GPIO_SIZE, NAME);
+	check_mem_region(GPIO_PA_BASE, GPIO_SIZE);
+	request_mem_region(GPIO_PA_BASE, GPIO_SIZE, NAME);
 
 	// makes memory accessable and gets the base value for GPIO operations
-	gpio = ioremap_nocache(GPIO_BASE, GPIO_SIZE);
+	gpio = ioremap_nocache(GPIO_PA_BASE, GPIO_SIZE);
 
 	// set up GPIO
 
@@ -157,16 +160,16 @@ static void __exit gamepad_cleanup(void)
 {
 	device_destroy(cl, devno);
 	class_destroy(cl);
-	unregister_chrdev_region(devno, 1);
+	//unregister_chrdev_region(devno, 1);
 	cdev_del(&my_cdev);
 
-	//Release interrupt handlers
-	free_irq(17, NULL);
-	free_irq(18, NULL);
+	////Release interrupt handlers
+	//free_irq(17, NULL);
+	//free_irq(18, NULL);
 
-	//Release memory
-	iounmap(gpio);
-	release_mem_region(GPIO_BASE, GPIO_SIZE);
+	////Release memory
+	//iounmap(gpio);
+	//release_mem_region(GPIO_BASE, GPIO_SIZE);
 	printk("Short life for a small module...\n");
 }
 
