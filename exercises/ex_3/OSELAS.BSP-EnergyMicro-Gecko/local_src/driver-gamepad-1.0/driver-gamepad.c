@@ -10,7 +10,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/version.h>
-#include <linux/types.h>
+//#include <linux/types.h>
 #include <linux/interrupt.h>
 //#include <linux/kdev_t.h>
 #include <linux/fs.h>
@@ -64,7 +64,7 @@ static struct file_operations my_fops = {
 	.read = gamepad_read,
 	.write = gamepad_write,
 	.open = gamepad_open,
-	.release = gamegamepadd_release
+	.release = gamepad_release
 };
 
 /*
