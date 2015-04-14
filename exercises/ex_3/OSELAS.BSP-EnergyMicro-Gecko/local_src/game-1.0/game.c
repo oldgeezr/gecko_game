@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-	printf("Hello World, I'm game!\n");
+	printf("Yeah! Just flashed the rootfs!\n");
 
 	exit(EXIT_SUCCESS);
 }
