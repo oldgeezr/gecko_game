@@ -16,6 +16,7 @@
 #include <linux/fs.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
+#include <linux/sched.h>
 #include <asm/siginfo.h>
 #include "efm32gg.h"
 
@@ -27,27 +28,31 @@ dev_t devno;
 struct cdev my_cdev;
 // declare device class
 struct class *cl;
+// declare task struct
+struct task_struct *task;
 // Dunno what this does
 struct siginfo signal_info;
 void __iomem *gpio;
+// gamepad enable variable
+uint8_t gamepad_en = 0;
 
 /* user program opens the driver */
-static int my_open(struct inode *inode, struct file *filp) {
+static int gamepad_open(struct inode *inode, struct file *filp) {
 	printk(KERN_INFO "gamepad_driver: open()\n");
 	return 0;
 }
 /* user program closes the driver */
-static int my_release(struct inode *inode, struct file *filp) {
+static int gamepad_release(struct inode *inode, struct file *filp) {
 	printk(KERN_INFO "gamepad_driver: close()\n");
 	return 0;
 }
 /* user program reads from the driver */
-static ssize_t my_read(struct file *filp, char __user *buff, size_t count, loff_t *offp) {
+static ssize_t gamepad_read(struct file *filp, char __user *buff, size_t count, loff_t *offp) {
 	printk(KERN_INFO "gamepad_driver: read()\n");
 	return 0;
 }
 /* user program writes to the driver */
-static ssize_t my_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp) {
+static ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp) {
 	printk(KERN_INFO "gamepad_driver: write()\n");
 	// should probably return the length of the write?
 	return 0;
@@ -56,10 +61,10 @@ static ssize_t my_write(struct file *filp, const char __user *buff, size_t count
 // struct for file operations. Needed by the kernel
 static struct file_operations my_fops = {
 	.owner = THIS_MODULE,
-	.read = my_read,
-	.write = my_write,
-	.open = my_open,
-	.release = my_release
+	.read = gamepad_read,
+	.write = gamepad_write,
+	.open = gamepad_open,
+	.release = gamegamepadd_release
 };
 
 /*
@@ -71,9 +76,39 @@ static struct file_operations my_fops = {
  * Returns 0 if successfull, otherwise -1
  */
 
-static inline void memwrite(void *base, uint32_t offset, uint32_t value)
+static inline void mem_write(volatile uint32_t* register_, uint32_t value)
 {
-	*(volatile uint32_t *) ((uint32_t) base + offset) = value;
+	*register_ = value;
+}
+
+uint32_t mem_read(volatile uint32_t* register_)
+{
+	return *register_;
+}
+
+static irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs * regs)
+{
+	uint32_t buttons = mem_read(GPIO_PC_DIN);
+	// copy button state to signal
+	signal_info.si_int = ~buttons;
+	// reset the interrupt
+	mem_write(GPIO_IFC, 0xFFFF);
+
+	if(gamepad_en)
+	{
+		int status = send_sig_info(50, &signal_info, task);
+		if (status < 0)
+		{
+			printk("Unable to send interrupt\n");
+			return -1;
+		}
+	}
+	else
+	{
+		printk("Gamepad driver not enabled\n");
+		return -1;
+	}
+	return IRQ_HANDLED;
 }
 
 static int __init gampad_init(void)
@@ -87,24 +122,24 @@ static int __init gampad_init(void)
 
 	// set up GPIO
 
-	memwrite(gpio, GPIO_PA_CTRL, 0x2);
+	mem_write(GPIO_PA_CTRL, 0x2);
 	// set pins A8-15 to output
-	memwrite(gpio, GPIO_PA_MODEH, 0x55555555);
-	memwrite(gpio, GPIO_PA_DOUT, 0xFF00);
+	mem_write(GPIO_PA_MODEH, 0x55555555);
+	mem_write(GPIO_PA_DOUT, 0xFF00);
 
 	// sets pins 1-7 on PC to input
-	memwrite(gpio, GPIO_PC_MODEL, 0x33333333);
-	memwrite(gpio, GPIO_PC_DOUT, 0xFF);
+	mem_write(GPIO_PC_MODEL, 0x33333333);
+	mem_write(GPIO_PC_DOUT, 0xFF);
 
 	// enable interrupt generation
-	memwrite(gpio, GPIO_IEN, 0xFF);
-	memwrite(gpio, GPIO_EXTIPSELL, 0x22222222);
+	mem_write(GPIO_IEN, 0xFF);
+	mem_write(GPIO_EXTIPSELL, 0x22222222);
 
 	// trigger interrupt on button press
-	memwrite(gpio, GPIO_EXTIFALL, 0xFF);
+	mem_write(GPIO_EXTIFALL, 0xFF);
 
 	// clear interrupts
-	memwrite(gpio, GPIO_IFC, 0xFFFF);
+	mem_write(GPIO_IFC, 0xFFFF);
 
 	// enable interruption generation
 	request_irq(17, interrupt_handler, 0, NAME, NULL);
