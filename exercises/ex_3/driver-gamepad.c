@@ -21,7 +21,6 @@
 #include <linux/sched.h>
 // for singal struct
 #include <asm/siginfo.h>
-#include "efm32gg.h"
 
 #define NAME "gamepad"
 
