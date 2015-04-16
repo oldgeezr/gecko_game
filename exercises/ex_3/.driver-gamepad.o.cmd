@@ -600,6 +600,24 @@ deps_/home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.o := \
   include/uapi/linux/fcntl.h \
   /usr/src/linux-headers-3.13.0-32-generic/arch/x86/include/uapi/asm/fcntl.h \
   /usr/src/linux-headers-3.13.0-32-generic/include/uapi/asm-generic/fcntl.h \
+  include/linux/cdev.h \
+  include/linux/device.h \
+    $(wildcard include/config/debug/devres.h) \
+    $(wildcard include/config/pinctrl.h) \
+    $(wildcard include/config/dma/cma.h) \
+    $(wildcard include/config/devtmpfs.h) \
+    $(wildcard include/config/sysfs/deprecated.h) \
+  include/linux/klist.h \
+  include/linux/pinctrl/devinfo.h \
+  include/linux/pinctrl/consumer.h \
+  include/linux/seq_file.h \
+  include/linux/pinctrl/pinctrl-state.h \
+  include/linux/ratelimit.h \
+  /usr/src/linux-headers-3.13.0-32-generic/arch/x86/include/asm/device.h \
+    $(wildcard include/config/x86/dev/dma/ops.h) \
+    $(wildcard include/config/intel/iommu.h) \
+    $(wildcard include/config/amd/iommu.h) \
+  include/linux/pm_wakeup.h \
 
 /home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.o: $(deps_/home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.o)
 

@@ -5,15 +5,16 @@
 #include <linux/fs.h>
 // for creating char device class
 #include <linux/cdev.h>
+#include <linux/device.h>
 
 #define NAME "gamepad"
 
 // declare device number
-dev_t devno;
+static dev_t devno;
 // declare character device
-struct cdev my_cdev;
+static struct cdev my_cdev;
 // declare device class
-struct class *cl;
+static struct class *cl;
 
 /* user program opens the driver */
 int gamepad_open(struct inode *inode, struct file *filp) {
@@ -33,8 +34,7 @@ ssize_t gamepad_read(struct file *filp, char __user *buff, size_t count, loff_t 
 /* user program writes to the driver */
 ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp) {
 	printk(KERN_INFO "gamepad_driver: write()\n");
-	// should probably return the length of the write?
-	return 0;
+	return count;
 }
 
 // struct for file operations. Needed by the kernel
@@ -55,11 +55,10 @@ static struct file_operations my_fops = {
 	//.revalidate =
 };
 
-static int __init gampad_init(void)
-{
-	// register charachter device number
+static int __init gampad_init(void) {
+	// register character device
 	if (alloc_chrdev_region(&devno, 0, 1, NAME) < 0) return -1;
-	else printk(KERN_INFO "Driver registered\n");
+	else printk(KERN_INFO "Character device registered\n");
 
 	// create class struct
 	if ((cl = class_create(THIS_MODULE, NAME)) == NULL) {
@@ -67,27 +66,41 @@ static int __init gampad_init(void)
 		return -1;
 	}
 
-	// create device
+	// create char device
 	if (device_create(cl, NULL, devno, NULL, NAME) == NULL) {
 		class_destroy(cl);
 		unregister_chrdev_region(devno, 1);
 		return -1;
-	} else printk(KERN_INFO "Driver put in /dev\n");
+	} else printk(KERN_INFO "Characer device created\n");
 
-	printk(KERN_INFO "Start driver\n");
+	// init character device
+	cdev_init(&my_cdev, &my_fops);
+	my_cdev.owner = THIS_MODULE;
+
+	// add device
+	if (cdev_add(&my_cdev, devno, 1) == -1) {
+		device_destroy(cl, devno);
+		class_destroy(cl);
+		unregister_chrdev_region(devno, 1);
+		return -1;
+	} else printk(KERN_INFO "Driver entry created in /dev\n");
+
+	printk(KERN_INFO "Driver started\n");
 	return 0;
 }
 
-static void __exit gamepad_cleanup(void)
-{
-	unregister_chrdev(89, NAME);
+static void __exit gamepad_cleanup(void) {
+	device_destroy(cl, devno);
+	class_destroy(cl);
+	cdev_del(&my_cdev);
+	unregister_chrdev(devno, NAME);
 	printk(KERN_INFO "Driver unregistered\n");
-	printk(KERN_INFO "Exit driver\n");
+	printk(KERN_INFO "Driver stopped\n");
 }
 
 module_init(gampad_init);
 module_exit(gamepad_cleanup);
 
-MODULE_DESCRIPTION("Small module, demo only, not very useful.");
+MODULE_DESCRIPTION("Driver for Gamepad");
 MODULE_LICENSE("GPL");
 

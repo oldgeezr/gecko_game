@@ -19,7 +19,15 @@ __used
 __attribute__((section("__versions"))) = {
 	{ 0xe00b4984, __VMLINUX_SYMBOL_STR(module_layout) },
 	{ 0x6bc3fbc0, __VMLINUX_SYMBOL_STR(__unregister_chrdev) },
-	{ 0x62f4400f, __VMLINUX_SYMBOL_STR(__register_chrdev) },
+	{ 0x5eae5d6b, __VMLINUX_SYMBOL_STR(cdev_del) },
+	{ 0x1afde3b9, __VMLINUX_SYMBOL_STR(device_destroy) },
+	{ 0xdd353f7f, __VMLINUX_SYMBOL_STR(cdev_add) },
+	{ 0x64e48f86, __VMLINUX_SYMBOL_STR(cdev_init) },
+	{ 0x7485e15e, __VMLINUX_SYMBOL_STR(unregister_chrdev_region) },
+	{ 0xcdfdd5c2, __VMLINUX_SYMBOL_STR(class_destroy) },
+	{ 0xf94631ef, __VMLINUX_SYMBOL_STR(device_create) },
+	{ 0x28b3b2f3, __VMLINUX_SYMBOL_STR(__class_create) },
+	{ 0x29537c9e, __VMLINUX_SYMBOL_STR(alloc_chrdev_region) },
 	{ 0x50eedeb8, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xb4390f9a, __VMLINUX_SYMBOL_STR(mcount) },
 };
@@ -30,4 +38,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "3B7CED11147281939496396");
+MODULE_INFO(srcversion, "CD075CED8B225FE7AAA4ABB");
