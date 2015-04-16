@@ -1,0 +1,1 @@
+cmd_/home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.13.0-32-generic/scripts/module-common.lds --build-id  -o /home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.ko /home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.o /home/tdt4258/gecko_game/exercises/ex_3/driver-gamepad.mod.o

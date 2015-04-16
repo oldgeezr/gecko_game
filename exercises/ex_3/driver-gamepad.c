@@ -1,40 +1,19 @@
-/*
- * This is a demo Linux kernel module.
- */
-
-// TODO: Denna sidå såg bra ut :D http://www.freesoftwaremagazine.com/articles/drivers_linux
-// TODO: Denna sidå såg bedre ut :P http://www.tldp.org/LDP/lkmpg/2.6/html/lkmpg.html#AEN121
-// TODO: OOOG denne: http://www.opensourceforu.com/2011/04/character-device-files-creation-operations/
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
-#include <linux/version.h>
-//#include <linux/types.h>
-#include <linux/interrupt.h>
-//#include <linux/kdev_t.h>
+// for registering char device
 #include <linux/fs.h>
-#include <linux/device.h>
-// for char device struct
+// for creating char device class
 #include <linux/cdev.h>
-// for task struct
-#include <linux/sched.h>
-// for singal struct
-#include <asm/siginfo.h>
 
 #define NAME "gamepad"
 
+// declare device number
+dev_t devno;
 // declare character device
 struct cdev my_cdev;
 // declare device class
 struct class *cl;
-// declare task struct
-// struct task_struct *task;
-// Dunno what this does
-// struct siginfo signal_info;
-// void __iomem *gpio;
-// gamepad enable variable
-// uint8_t gamepad_en = 0;
 
 /* user program opens the driver */
 int gamepad_open(struct inode *inode, struct file *filp) {
@@ -78,12 +57,32 @@ static struct file_operations my_fops = {
 
 static int __init gampad_init(void)
 {
+	// register charachter device number
+	if (alloc_chrdev_region(&devno, 0, 1, NAME) < 0) return -1;
+	else printk(KERN_INFO "Driver registered\n");
+
+	// create class struct
+	if ((cl = class_create(THIS_MODULE, NAME)) == NULL) {
+		unregister_chrdev_region(devno, 1);
+		return -1;
+	}
+
+	// create device
+	if (device_create(cl, NULL, devno, NULL, NAME) == NULL) {
+		class_destroy(cl);
+		unregister_chrdev_region(devno, 1);
+		return -1;
+	} else printk(KERN_INFO "Driver put in /dev\n");
+
+	printk(KERN_INFO "Start driver\n");
 	return 0;
 }
 
 static void __exit gamepad_cleanup(void)
 {
-	printk("Short life for a small module...\n");
+	unregister_chrdev(89, NAME);
+	printk(KERN_INFO "Driver unregistered\n");
+	printk(KERN_INFO "Exit driver\n");
 }
 
 module_init(gampad_init);
