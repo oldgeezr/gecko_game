@@ -2,7 +2,7 @@
 #include "gpio.h"
 
 #define LED_MASK                    0xFF00
-#define LED_DEFAULT_OUT             0xFFFF
+#define LED_DEFAULT_OUT             0x7000
 #define DRIVE_MODE_HIGH             2
 #define PIN_MODE_PUSH_PULL_DRIVE    0x55555555
 #define PIN_MODE_INPUT_PULL_FILTER  0x33333333

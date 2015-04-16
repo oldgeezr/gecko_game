@@ -6,6 +6,10 @@
 // for creating char device class
 #include <linux/cdev.h>
 #include <linux/device.h>
+// for usage of __iomem
+// #include <asm/io.h>
+
+#include "efm32gg.h"
 
 #define NAME "gamepad"
 
@@ -15,6 +19,11 @@ static dev_t devno;
 static struct cdev my_cdev;
 // declare device class
 static struct class *cl;
+// declare __iomem pointer
+void __iomem* gpio_base;
+
+static inline void mem_write(void* base, uint16_t register_, uint32_t value);
+static inline uint32_t mem_read(void* base, uint16_t register_);
 
 /* user program opens the driver */
 int gamepad_open(struct inode *inode, struct file *filp) {
@@ -56,6 +65,20 @@ static struct file_operations my_fops = {
 };
 
 static int __init gampad_init(void) {
+
+	// request and map memory
+	check_mem_region(GPIO_PA_BASE, GPIO_SIZE);
+	request_mem_region(GPIO_PA_BASE, GPIO_SIZE, NAME);
+
+	// makes memory accessable and gets the base value for GPIO operations
+	gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_SIZE);
+
+	// set output pins to high strength
+	mem_write(gpio_base, GPIO_PA_CTRL, DRIVE_MODE_HIGH);
+	mem_write(gpio_base, GPIO_PA_CTRL, PIN_MODE_PUSH_PULL_DRIVE);
+	// set LEDS
+	// mem_write(gpio_base, GPIO_PA_CTRL, LED_DEFAULT_OUT);
+
 	// register character device
 	if (alloc_chrdev_region(&devno, 0, 1, NAME) < 0) return -1;
 	else printk(KERN_INFO "Character device registered\n");
@@ -96,6 +119,14 @@ static void __exit gamepad_cleanup(void) {
 	unregister_chrdev(devno, NAME);
 	printk(KERN_INFO "Driver unregistered\n");
 	printk(KERN_INFO "Driver stopped\n");
+}
+
+static inline void mem_write(void* base, uint16_t register_, uint32_t value) {
+	*(volatile uint32_t*)(base + register_) = value;
+}
+
+static inline uint32_t mem_read(void* base, uint16_t register_) {
+	return *(volatile uint32_t*)(base + register_);
 }
 
 module_init(gampad_init);

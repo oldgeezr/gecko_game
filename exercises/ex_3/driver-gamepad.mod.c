@@ -28,6 +28,10 @@ __attribute__((section("__versions"))) = {
 	{ 0xf94631ef, __VMLINUX_SYMBOL_STR(device_create) },
 	{ 0x28b3b2f3, __VMLINUX_SYMBOL_STR(__class_create) },
 	{ 0x29537c9e, __VMLINUX_SYMBOL_STR(alloc_chrdev_region) },
+	{ 0x42c8de35, __VMLINUX_SYMBOL_STR(ioremap_nocache) },
+	{ 0x1fedf0f4, __VMLINUX_SYMBOL_STR(__request_region) },
+	{ 0xa8a6f639, __VMLINUX_SYMBOL_STR(__check_region) },
+	{ 0x69a358a6, __VMLINUX_SYMBOL_STR(iomem_resource) },
 	{ 0x50eedeb8, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xb4390f9a, __VMLINUX_SYMBOL_STR(mcount) },
 };
@@ -38,4 +42,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "CD075CED8B225FE7AAA4ABB");
+MODULE_INFO(srcversion, "658BE78E2EEF052CC102E42");
