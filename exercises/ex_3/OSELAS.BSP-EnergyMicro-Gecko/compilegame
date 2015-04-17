@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "Clean driver-gamepad and game"
+ptxdist clean driver-gamepad
+#ptxdist clean game
+echo "Compile driver-gamepad and game"
+ptxdist go
+ptxdist compile driver-gamepad
+#ptxdist compile game
+echo "Install driver-gamepad and game"
+ptxdist targetinstall driver-gamepad
+#ptxdist targetinstall game
+echo "Make images for driver-gamepad and game"
+ptxdist image root.romfs
+echo "Flash device"
+ptxdist test flash-rootfs
+
+echo "Open miniterm"
+miniterm.py -b 115200 -p /dev/ttyUSB0

@@ -15,6 +15,10 @@ color_t blue	 = {31,0,0},
 int main(int argc, char *argv[])
 {
 	puts("Display test:");
+	puts("Display test:");
+	puts("Display test:");
+	puts("Display test:");
+	puts("Display test:");
 	display_setup();
 	puts("Display setup success!");
 	display_puts(10,100,"Lol!",red,3);

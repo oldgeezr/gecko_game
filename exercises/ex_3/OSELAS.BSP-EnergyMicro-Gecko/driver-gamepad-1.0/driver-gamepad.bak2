@@ -6,12 +6,16 @@
 // for creating char device class
 #include <linux/cdev.h>
 #include <linux/device.h>
-// for usage of __iomem
+// for usage of __iomem and iowrite
 #include <asm/io.h>
 
 #include "efm32gg.h"
 
 #define NAME "gamepad"
+
+// have to typedefs because stdint.h is not present
+typedef unsigned char uint8_t;
+typedef unsigned int uint32_t;
 
 // declare device number
 static dev_t devno;
@@ -22,7 +26,8 @@ static struct class *cl;
 // declare __iomem pointer
 void __iomem* gpio_base;
 
-typedef unsigned int uint32_t;
+//static inline void mem_write(void* base, uint16_t register_, uint32_t value);
+//static inline uint32_t mem_read(void* base, uint16_t register_);
 
 /* user program opens the driver */
 int gamepad_open(struct inode *inode, struct file *filp) {
@@ -65,30 +70,26 @@ static struct file_operations my_fops = {
 
 static int __init gampad_init(void) {
 
-	// request and map memory
-	// check_mem_region(GPIO_PA_BASE, GPIO_SIZE);
-	request_mem_region(GPIO_PA_BASE, GPIO_SIZE, NAME);
-
-	// makes memory accessable and gets the base value for GPIO operations
-	gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_SIZE);
-
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
-
-	/// set output pins to high strength
-	iowrite32(DRIVE_MODE_HIGH, gpio_base +GPIO_PA_CTRL);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
-	iowrite32(PIN_MODE_PUSH_PULL_DRIVE, gpio_base + GPIO_PA_MODEH);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
-	iowrite32(LED_DEFAULT_OUT, gpio_base + GPIO_PA_DOUT);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
-	// set LEDS
-	// mem_write(gpio_base, GPIO_PA_CTRL, LED_DEFAULT_OUT);
-
 	// register character device
 	if (alloc_chrdev_region(&devno, 0, 1, NAME) < 0) return -1;
 	else printk(KERN_INFO "Character device registered\n");
+
+	// makes memory accessable and gets the base value for GPIO operations
+	gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE);
+
+	printk(KERN_INFO "Read for gpio_base: %d\n", ioread32(gpio_base));
+
+
+	// request and map memory
+	//check_mem_region(gpio_base, (unsigned long)(GPIO_IFC - GPIO_PA_BASE));
+	request_mem_region(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE, NAME);
+
+	// set output pins to high strength
+	// iowrite32(DRIVE_MODE_HIGH, (void*)((uint32_t gpio_base) + GPIO_PA_CTRL));
+	iowrite32(DRIVE_MODE_HIGH, (uint32_t*)gpio_base + GPIO_PA_CTRL);
+	iowrite32(PIN_MODE_PUSH_PULL_DRIVE, (uint32_t*)gpio_base + GPIO_PA_MODEH);
+	// set LEDS
+	iowrite32(LED_DEFAULT_OUT, (uint32_t*)gpio_base + GPIO_PA_DOUT);
 
 	// create class struct
 	if ((cl = class_create(THIS_MODULE, NAME)) == NULL) {
@@ -115,25 +116,25 @@ static int __init gampad_init(void) {
 		return -1;
 	} else printk(KERN_INFO "Driver entry created in /dev\n");
 
-	printk(KERN_INFO "Driver started v1\n");
+	printk(KERN_INFO "Driver started\n");
 	return 0;
 }
 
 static void __exit gamepad_cleanup(void) {
-	//device_destroy(cl, devno);
-	//class_destroy(cl);
-	//cdev_del(&my_cdev);
-	//unregister_chrdev(devno, NAME);
+	device_destroy(cl, devno);
+	class_destroy(cl);
+	cdev_del(&my_cdev);
+	unregister_chrdev(devno, NAME);
 	printk(KERN_INFO "Driver unregistered\n");
 	printk(KERN_INFO "Driver stopped\n");
 }
 
 //static inline void mem_write(void* base, uint16_t register_, uint32_t value) {
-//	*(volatile uint32_t*)(base + register_) = value;
+//	*(volatile uint32_t*)((uint32_t)base + register_) = value;
 //}
 //
 //static inline uint32_t mem_read(void* base, uint16_t register_) {
-//	return *(volatile uint32_t*)(base + register_);
+//	return *(volatile uint32_t*)((uint32_t)base + register_);
 //}
 
 module_init(gampad_init);
@@ -141,4 +142,3 @@ module_exit(gamepad_cleanup);
 
 MODULE_DESCRIPTION("Driver for Gamepad");
 MODULE_LICENSE("GPL");
-
