@@ -6,12 +6,21 @@
 // for creating char device class
 #include <linux/cdev.h>
 #include <linux/device.h>
+// for tasks
+#include <linux/sched.h>
+// for interrupt
+#include <linux/interrupt.h>
 // for usage of __iomem
 #include <asm/io.h>
+// for signalinfo
+#include <asm/siginfo.h>
 
 #include "efm32gg.h"
 
 #define NAME "gamepad"
+
+typedef unsigned int uint32_t;
+typedef unsigned char uint8_t;
 
 // declare device number
 static dev_t devno;
@@ -21,8 +30,15 @@ static struct cdev my_cdev;
 static struct class *cl;
 // declare __iomem pointer
 void __iomem* gpio_base;
+// declare signal
+struct siginfo signal_info;
+// declare task
+struct task_struct *task;
+// variable for driver enabled
+uint8_t driver_enabled = 0;
 
-typedef unsigned int uint32_t;
+// function declarations
+irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs * regs);
 
 /* user program opens the driver */
 int gamepad_open(struct inode *inode, struct file *filp) {
@@ -52,39 +68,20 @@ static struct file_operations my_fops = {
 	.write = gamepad_write,
 	.open = gamepad_open,
 	.release = gamepad_release
-	//.lseek=
-	//.readdir =
-	//.select =
-	//.ioctl =
-	//.fsyn =
-	//.mmap =
-	//.fasync =
-	//.check_media_change =
-	//.revalidate =
+		//.lseek=
+		//.readdir =
+		//.select =
+		//.ioctl =
+		//.fsyn =
+		//.mmap =
+		//.fasync =
+		//.check_media_change =
+		//.revalidate =
 };
 
 static int __init gampad_init(void) {
 
-	// request and map memory
-	// check_mem_region(GPIO_PA_BASE, GPIO_SIZE);
-	request_mem_region(GPIO_PA_BASE, GPIO_SIZE, NAME);
-
-	// makes memory accessable and gets the base value for GPIO operations
-	gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_SIZE);
-
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
-
-	/// set output pins to high strength
-	iowrite32(DRIVE_MODE_HIGH, gpio_base +GPIO_PA_CTRL);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
-	iowrite32(PIN_MODE_PUSH_PULL_DRIVE, gpio_base + GPIO_PA_MODEH);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
-	iowrite32(LED_DEFAULT_OUT, gpio_base + GPIO_PA_DOUT);
-	printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
-	// set LEDS
-	// mem_write(gpio_base, GPIO_PA_CTRL, LED_DEFAULT_OUT);
+	printk(KERN_INFO "Driver version 2\n");
 
 	// register character device
 	if (alloc_chrdev_region(&devno, 0, 1, NAME) < 0) return -1;
@@ -115,19 +112,108 @@ static int __init gampad_init(void) {
 		return -1;
 	} else printk(KERN_INFO "Driver entry created in /dev\n");
 
+	//Setup signal sending, to trigger interrupts in the game.
+	memset(&signal_info, 0, sizeof(struct siginfo));
+	signal_info.si_signo = 50;
+	signal_info.si_code = SI_QUEUE;
+
+	// request and map memory
+	request_mem_region(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE, NAME);
+
+	// makes memory accessable and gets the base value for GPIO operations
+	gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE);
+
+	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
+	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
+
+	/// set output pins to high strength
+	iowrite32(DRIVE_MODE_HIGH, gpio_base +GPIO_PA_CTRL);
+	printk(KERN_INFO "Read (uint32_t*) gpio_base + ctrl: %x \n", ioread32(gpio_base + GPIO_PA_CTRL));
+	iowrite32(PIN_MODE_PUSH_PULL_DRIVE, gpio_base + GPIO_PA_MODEH);
+	printk(KERN_INFO "Read (uint32_t*) gpio_base + modeh: %x \n", ioread32(gpio_base + GPIO_PA_MODEH));
+
+	// printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
+
+	// set LEDS
+	// iowrite32(LED_DEFAULT_OUT, gpio_base + GPIO_PA_DOUT);
+	// printk(KERN_INFO "Read (uint32_t*) gpio_base + dout: %x \n", ioread32(gpio_base + GPIO_PA_DOUT));
+
+	gpio_base = ioremap_nocache(GPIO_PC_BASE, GPIO_IFC - GPIO_PA_BASE);
+
+	// set button pins to input
+	printk(KERN_INFO "Set btn pins\n");
+	iowrite32(PIN_MODE_INPUT_PULL_FILTER, gpio_base + GPIO_PC_MODEL);
+	iowrite32(0xFF, gpio_base + GPIO_PC_DOUT);
+	printk(KERN_INFO "Btn pins set\n");
+
+	// enable interrupt
+	iowrite32(0xFF, gpio_base + GPIO_IEN);
+	iowrite32(PORTSEL_PORTC, gpio_base + GPIO_EXTIPSELL);
+	printk(KERN_INFO "Interrupt enabled\n");
+
+	// trigger interrupt on btn press
+	iowrite32(0xFF, gpio_base + GPIO_EXTIFALL);
+	printk(KERN_INFO "Interrupt on bt press\n");
+
+	// clear interrupt flags
+	iowrite32(0xFFFF, gpio_base + GPIO_IFC);
+	printk(KERN_INFO "Clear interrupt flags\n");
+
+	//Enable interruption generation
+	request_irq(17, (irq_handler_t)interrupt_handler, 0, NAME, &my_cdev);
+	request_irq(18, (irq_handler_t)interrupt_handler, 0, NAME, &my_cdev);
+	printk(KERN_INFO "Interrupt requested\n");
+
+
 	printk(KERN_INFO "Driver started v1\n");
 	return 0;
 }
 
 static void __exit gamepad_cleanup(void) {
-	//device_destroy(cl, devno);
-	//class_destroy(cl);
-	//cdev_del(&my_cdev);
-	//unregister_chrdev(devno, NAME);
+	device_destroy(cl, devno);
+	class_destroy(cl);
+	cdev_del(&my_cdev);
+	//Release interrupt handlers
+	free_irq(17, NULL);
+	free_irq(18, NULL);
+
+	//Release memory
+	iounmap(gpio_base);
+	release_mem_region(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE);
+	unregister_chrdev(devno, NAME);
 	printk(KERN_INFO "Driver unregistered\n");
 	printk(KERN_INFO "Driver stopped\n");
 }
 
+irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs * regs) {
+	printk(KERN_INFO "GOTH interrupt\n");
+	//Read the button status
+	uint32_t buttons = ioread32(gpio_base + GPIO_PC_DIN);
+
+	//Set the signal value to the reversed button value(Because they are active low)
+	signal_info.si_int = ~buttons;
+
+	//Resets the interrupt
+	iowrite32(0xFFFF, gpio_base + GPIO_IFC);
+
+	//Checks if everything is up and running and sends the signal to the game.
+	if(driver_enabled)
+	{
+		int status = send_sig_info(50, &signal_info, task);
+		if (status < 0)
+		{
+			printk(KERN_INFO "Unable to send interrupt\n");
+			return -1;
+		}
+	}
+	else
+	{
+		printk(KERN_INFO "Driver not enabled\n");
+		return -1;
+	}
+
+	return IRQ_HANDLED;
+}
 //static inline void mem_write(void* base, uint16_t register_, uint32_t value) {
 //	*(volatile uint32_t*)(base + register_) = value;
 //}

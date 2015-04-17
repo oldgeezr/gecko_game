@@ -1,7 +1,6 @@
 // GPIO
 
-#define GPIO_SIZE		 								0x130
-#define LED_DEFAULT_OUT             0x0000
+#define LED_DEFAULT_OUT             0xFF00
 #define DRIVE_MODE_HIGH             2
 #define PIN_MODE_PUSH_PULL_DRIVE    0x55555555
 #define PIN_MODE_INPUT_PULL_FILTER  0x33333333
