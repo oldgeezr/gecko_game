@@ -1,9 +1,21 @@
+//`AC_DEFINE(_GNU_SOURCE)'
+//     GNU packages should normally include this line before any other
+//     feature tests.  This defines the macro `_GNU_SOURCE' when
+//     compiling, which directs the libc header files to provide the
+//     standard GNU system interfaces including all GNU extensions.  If
+//     this macro is not defined, certain GNU extensions may not be
+//     available.
+
+#ifndef _POSIX_C_SOURCE
+//#define _POSIX_C_SOURCE 1
+#define _GNU_SOURCE 1
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 //#include "display.h"
 //
@@ -16,33 +28,31 @@
 //				white  = {31,63,31},
 //				black  = {0,0,0};
 
-void interrupt_handler(int n, siginfo_t *info, void* arg);
+int descr;
+int buff;
+
+void interrupt_handler(int signo) {
+	//if(signum ==SIGIO){
+	read((descr), &buff, 1);
+	printf("type: %d reading %d\n", signo, buff);
+	//}
+}
 
 int main(int argc, char *argv[])
 {
 
-	int gamepad;
-
-	gamepad = open("/dev/gamepad", O_RDWR);
-	if (gamepad < 0) {
-		printf("Could not open Gamepad Driver...");
-	}
-
-	struct sigaction gamepad_signal;
-
-	gamepad_signal.sa_sigaction = interrupt_handler;
-	gamepad_signal.sa_flags = SA_SIGINFO;
-	sigaction(SIGTERM, &gamepad_signal, NULL);
+	int oflags;
+	descr = open("/dev/gamepad", O_RDONLY);
+	signal(SIGIO, &interrupt_handler);
+	fcntl(descr, F_SETOWN, getpid());
+	oflags = fcntl(descr, F_GETFL);
+	fcntl(descr, F_SETFL, oflags | FASYNC);
+	printf("Started game\n");
 
 	for (;;) {
-		sleep(1000);
-	};
+		sleep(10);
+	}
 
-	exit(EXIT_SUCCESS);
+	return 0;
 }
 
-void interrupt_handler(int n, siginfo_t *info, void* arg) {
-
-	uint8_t buttons = (uint8_t)(info->si_int);
-	printf("Button registers: %x\n", buttons);
-}

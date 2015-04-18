@@ -6,8 +6,8 @@
 # add more flags here,
 # but don't remove the "+="
 #
-CC = arm-cortexm3-uclinuxeabi-gcc
-CFLAGS += -O2 -g -Wall -std=c99 -D_POSIX_C_SOURCE=199309L #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
+#CC = arm-cortexm3-uclinuxeabi-gcc
+CFLAGS += -O2 -g -Wall -std=c99 #-D_POSIX_C_SOURCE=199309L #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 CPPFLAGS +=
 LDFLAGS += -lm
 
