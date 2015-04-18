@@ -14,11 +14,11 @@
 #include "efm32gg.h"
 
 #define NAME												"gamepad"
-#define LED_DEFAULT_OUT             0xFF00
-#define DRIVE_MODE_HIGH             2
-#define PIN_MODE_PUSH_PULL_DRIVE    0x55555555
-#define PIN_MODE_INPUT_PULL_FILTER  0x33333333
-#define PORTSEL_PORTC               0x22222222
+#define LED_DEFAULT_OUT							0xFF00
+#define DRIVE_MODE_HIGH							2
+#define PIN_MODE_PUSH_PULL_DRIVE		0x55555555
+#define PIN_MODE_INPUT_PULL_FILTER	0x33333333
+#define PORTSEL_PORTC								0x22222222
 #define GPIO_EVEN_IRQ								17
 #define GPIO_ODD_IRQ								18
 
