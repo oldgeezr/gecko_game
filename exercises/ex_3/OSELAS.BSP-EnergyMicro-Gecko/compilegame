@@ -2,14 +2,14 @@
 
 echo "Clean driver-gamepad and game"
 ptxdist clean driver-gamepad
-#ptxdist clean game
+ptxdist clean game
 echo "Compile driver-gamepad and game"
 ptxdist go
 ptxdist compile driver-gamepad
-#ptxdist compile game
+ptxdist compile game
 echo "Install driver-gamepad and game"
 ptxdist targetinstall driver-gamepad
-#ptxdist targetinstall game
+ptxdist targetinstall game
 echo "Make images for driver-gamepad and game"
 ptxdist image root.romfs
 echo "Flash device"

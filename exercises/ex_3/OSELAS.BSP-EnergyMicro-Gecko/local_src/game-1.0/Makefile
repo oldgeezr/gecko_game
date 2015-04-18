@@ -7,7 +7,7 @@
 # but don't remove the "+="
 #
 CC = arm-cortexm3-uclinuxeabi-gcc
-CFLAGS += -O2 -g -Wall -std=c99  #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
+CFLAGS += -O2 -g -Wall -std=c99 -D_POSIX_C_SOURCE=199309L #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 CPPFLAGS +=
 LDFLAGS += -lm
 
@@ -17,7 +17,7 @@ OBJ = display.o
 
 all: game
 
-game: ${OBJ} 
+game: ${OBJ}
 	${CC} ${CFLAGS} game.c ${OBJ} -o game ${LDFLAGS}
 
 clean:
