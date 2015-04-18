@@ -33,4 +33,15 @@
 
 # Others
 *.vim
-platform-energymicro-efm32gg-dk3750
+platform*
+*.driver*
+*.order
+*.tmp*
+*.sym*
+src
+projectroot
+rules
+tests
+geckoboot*
+selected*
+configs
