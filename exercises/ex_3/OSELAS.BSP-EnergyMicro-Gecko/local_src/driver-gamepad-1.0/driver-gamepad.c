@@ -41,6 +41,10 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id);
 // open function for user
 int gamepad_open(struct inode *inode, struct file *filp) {
 
+	// enable interruption generation
+	request_irq(GPIO_EVEN_IRQ, &interrupt_handler, 0, NAME, NULL);
+	request_irq(GPIO_ODD_IRQ, &interrupt_handler, 0, NAME, NULL);
+
 	printk(KERN_INFO "Gamepad driver: open()\n");
 	return 0;
 }
@@ -48,7 +52,12 @@ int gamepad_open(struct inode *inode, struct file *filp) {
 // release function for user
 int gamepad_release(struct inode *inode, struct file *filp) {
 
+	// disable interrupt generation
+	free_irq(GPIO_EVEN_IRQ, NULL);
+	free_irq(GPIO_ODD_IRQ, NULL);
+
 	driver_en = 0;
+
 	printk(KERN_INFO "Gamepad driver: close()\n");
 	return 0;
 }
@@ -165,10 +174,6 @@ static int __init gampad_init(void) {
 	// clear interrupt flags
 	iowrite32(0xFFFF, gpio_base + GPIO_IFC);
 
-	//Enable interruption generation
-	request_irq(GPIO_EVEN_IRQ, &interrupt_handler, 0, NAME, NULL);
-	request_irq(GPIO_ODD_IRQ, &interrupt_handler, 0, NAME, NULL);
-
 	// set driver enabled flag
 	driver_en = 1;
 
@@ -177,9 +182,6 @@ static int __init gampad_init(void) {
 }
 
 static void __exit gamepad_cleanup(void) {
-
-	free_irq(GPIO_EVEN_IRQ, NULL);
-	free_irq(GPIO_ODD_IRQ, NULL);
 
 	iounmap(gpio_base);
 	iounmap(gpio_pc_base);
