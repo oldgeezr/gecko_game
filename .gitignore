@@ -38,6 +38,9 @@ platform*
 *.order
 *.tmp*
 *.sym*
+*.gdb
+*.mod*
+game
 src
 projectroot
 rules
