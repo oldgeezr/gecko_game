@@ -66,7 +66,7 @@ ssize_t gamepad_read(struct file *filp, char __user *buff, size_t len, loff_t *o
   int data;
   data = ~ioread32(gpio_pc_base + GPIO_PC_DIN);
   copy_to_user(buff, &data, 1);
-  printk(KERN_INFO "Gamepad driver: read()\n");
+  //printk(KERN_INFO "Gamepad driver: read()\n");
   return 0;
 }
 // write function for user
@@ -187,7 +187,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id) {
 
   iowrite32(0xFFFF, gpio_base + GPIO_IFC);
   kill_fasync(&async_queue, SIGIO, POLL_IN);
-  printk(KERN_INFO "Interrupt handled test...\n");
+  //printk(KERN_INFO "Interrupt handled test...\n");
   return IRQ_HANDLED;
 }
 

@@ -51,7 +51,7 @@ static inline void display_refresh(void) {
 //----------------------Geometric functions-----------------------------------//
 
 void display_draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, color_t color);
-void display_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, color_t color);
+void display_draw_filled_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, color_t color);
 void display_draw_circle(uint16_t x0, uint16_t y0, uint16_t r, color_t color);
 void display_draw_filled_circle(uint16_t x0, uint16_t y0, uint16_t r, color_t color);
 

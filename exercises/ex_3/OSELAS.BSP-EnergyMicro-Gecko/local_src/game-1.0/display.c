@@ -45,7 +45,7 @@ void display_draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, color_t c
 	}
 }
 
-void display_draw_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, color_t color) {
+void display_draw_filled_rect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, color_t color) {
 
 	uint16_t i,j;
 
@@ -131,7 +131,7 @@ void display_draw_char(uint16_t x, uint16_t y, char c, color_t color, uint8_t si
 			  if (size == 1) // default size
 					display_draw_pixel(x+i, y+j, color);
 			  else {  // big size
-				  display_draw_rect(x+i*size, y+j*size, size, size, color);
+				  display_draw_filled_rect(x+i*size, y+j*size, size, size, color);
 			  }
 		  }
 		  line >>= 1;

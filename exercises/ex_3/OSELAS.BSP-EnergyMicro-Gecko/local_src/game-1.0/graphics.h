@@ -12,9 +12,9 @@
 
 /* Graphic attributes */
 #define BAR_LENGTH  	40 		// Pixels
-#define BAR_HEIGHT		5 		// Pixels
+#define BAR_HEIGHT		6 		// Pixels
 #define BAR_COLOR   	0xFFF 	// RGB hexadecimals
-#define BALL_RADIUS 	5 		// Pixels
+#define BALL_RADIUS 	6 		// Pixels
 #define BALL_COLOR  	0xFFF 	// RGB hexadecimals
 #define BCKGRND_COLOR 	0x000 	// RGB hexadecimals
 
@@ -23,6 +23,6 @@ void GRAPHICS_clearScreen(void);
 void GRAPHICS_printBall(uint16_t x, uint16_t y);
 void GRAPHICS_printBar(uint16_t x);
 void GRAPHICS_clearBall(uint16_t x, uint16_t y);
-//void GRAPHICS_clearBar(uint16_t x);
+void GRAPHICS_clearBar(uint16_t x);
 
 #endif /* GRAPHICS_H_ */

@@ -21,39 +21,31 @@ typedef unsigned int uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 
-void GRAPHICS_printBall(uint16_t x, uint16_t y)
-{
-	uint16_t a,b;
+void GRAPHICS_printBall(uint16_t x, uint16_t y) {
+  display_draw_filled_circle(x,y,BALL_RADIUS,cyan);
+}
 
-	for(a = x - BALL_RADIUS; a <= x + BALL_RADIUS; a++)
-	{
-		for(b = y - BALL_RADIUS; b <= y + BALL_RADIUS; b++)
-		{
-			if ( ((a*a) + (b*b)) < (BALL_RADIUS*BALL_RADIUS) )
-			{
-				display_draw_pixel(a,b, white);
-			}
-		}
-	}
+void GRAPHICS_clearBall(uint16_t x, uint16_t y) {
+  display_draw_filled_circle(x,y,BALL_RADIUS,black);
+}
+
+void GRAPHICS_showWelcomeScreen(void) {
+  GRAPHICS_clearScreen();
+  display_puts(50, 10, "Game Of Zwag",white,3);
+  display_puts(100,200,"Press a button to continue",white,1);
+  display_draw_filled_circle(WIDTH/2, 100, 25, pink);
+  display_draw_filled_circle(WIDTH/2, 150, 25, white);
   display_refresh();
 }
 
-void GRAPHICS_clearBall(uint16_t x, uint16_t y)
-{
-	uint16_t a,b;
-
-	for(a = x - BALL_RADIUS; a <= x + BALL_RADIUS; a++)
-	{
-		for(b = y - BALL_RADIUS; b <= y + BALL_RADIUS; b++)
-		{
-			if ( ((a*a) + (b*b)) < (BALL_RADIUS*BALL_RADIUS) )
-			{
-				display_draw_pixel(a,b, black);
-			}
-		}
-	}
+void GRAPHICS_clearScreen(void) {
+  display_draw_filled_rect(0,0,WIDTH,HEIGHT,black);
+}
+void GRAPHICS_printBar(uint16_t x) {
+  display_draw_filled_rect(x,HEIGHT-BAR_HEIGHT,BAR_LENGTH,BAR_HEIGHT,yellow);
+}
+void GRAPHICS_clearBar(uint16_t x) {
+  display_draw_filled_rect(x,HEIGHT-BAR_HEIGHT,BAR_LENGTH,BAR_HEIGHT,black);
 }
 
-void GRAPHICS_showWelcomeScreen(void) {}
-void GRAPHICS_clearScreen(void) {}
-void GRAPHICS_printBar(uint16_t x) {}
+
