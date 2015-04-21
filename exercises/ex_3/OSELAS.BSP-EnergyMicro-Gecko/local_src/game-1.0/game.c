@@ -28,14 +28,49 @@
 //				white  = {31,63,31},
 //				black  = {0,0,0};
 
+#define true 1
+#define false 0
+
+#define SW0 0
+#define SW1 1
+#define SW7 64
+
+typedef enum {
+  NO_BTN,
+  LEFT,
+  RIGHT,
+  RESET
+} button_t;
+
+typedef char bool;
+
 int descr;
 int buff;
+
+bool pb0 = false;
+bool pb1 = false;
 
 void interrupt_handler(int signo) {
 	//if(signum ==SIGIO){
 	read((descr), &buff, 1);
 	printf("type: %d reading %d\n", signo, buff);
 	//}
+
+  switch (buff) {
+    case SW0:
+      pb0 = false;
+      pb1 = false;
+      break;
+    case SW1:
+      pb0 = true;
+      pb1 = false;
+      break;
+    case SW7:
+      pb0 = false;
+      pb1 = true;
+      break;
+  }
+	printf("pb0 %d, pb1 %d\n", pb0, pb1);
 }
 
 int main(int argc, char *argv[])
