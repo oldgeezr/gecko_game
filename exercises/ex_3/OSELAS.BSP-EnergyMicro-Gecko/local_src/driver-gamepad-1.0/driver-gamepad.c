@@ -31,10 +31,8 @@ static struct         class *cl;
 static struct         device* dev_create;
 struct fasync_struct* async_queue;
 void __iomem*         gpio_base;
-void __iomem*         gpio_pc_base;
 struct                siginfo signal;
 struct                task_struct *task;
-uint8_t               driver_en = 0;
 
 static irqreturn_t interrupt_handler(int irq, void *dev_id);
 
@@ -56,8 +54,6 @@ int gamepad_release(struct inode *inode, struct file *filp) {
   free_irq(GPIO_EVEN_IRQ, NULL);
   free_irq(GPIO_ODD_IRQ, NULL);
 
-  driver_en = 0;
-
   printk(KERN_INFO "Gamepad driver: close()\n");
   return 0;
 }
@@ -66,7 +62,7 @@ int gamepad_release(struct inode *inode, struct file *filp) {
 ssize_t gamepad_read(struct file *filp, char __user *buff, size_t len, loff_t *offp) {
 
   int data;
-  data = ~ioread32(gpio_pc_base + GPIO_PC_DIN);
+  data = ~ioread32(gpio_base + GPIO_PC_DIN);
   copy_to_user(buff, &data, 1);
   printk(KERN_INFO "Gamepad driver: read()\n");
   return 0;
@@ -143,26 +139,18 @@ static int __init gampad_init(void) {
     printk(KERN_INFO "Driver entry created in /dev\n");
   }
 
-  // allocate memory for signal
-  //memset(&signal, 0, sizeof(struct siginfo));
-  //signal.si_signo = 60;
-  //signal.si_code = SI_QUEUE;
-
   // request and map memory
   request_mem_region(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE, NAME);
 
-  // makes memory accessable and gets the base value for GPIO operations
-  gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE);
-
-  // set output pins to high strength
-  // iowrite32(DRIVE_MODE_HIGH, gpio_base + GPIO_PA_CTRL);
-  // iowrite32(PIN_MODE_PUSH_PULL_DRIVE, gpio_base + GPIO_PA_MODEH);
-
-  gpio_pc_base = ioremap_nocache(GPIO_PC_BASE, GPIO_IFC - GPIO_PA_BASE);
+  // make memory base address for GPIO_PC
+  gpio_base = ioremap_nocache(GPIO_PC_BASE, GPIO_IFC - GPIO_PA_BASE);
 
   // set button pins to input
-  iowrite32(PIN_MODE_INPUT_PULL_FILTER, gpio_pc_base + GPIO_PC_MODEL);
-  iowrite32(0xFF, gpio_pc_base + GPIO_PC_DOUT);
+  iowrite32(PIN_MODE_INPUT_PULL_FILTER, gpio_base + GPIO_PC_MODEL);
+  iowrite32(0xFF, gpio_base + GPIO_PC_DOUT);
+
+  // make memory base address for requested memory region
+  gpio_base = ioremap_nocache(GPIO_PA_BASE, GPIO_IFC - GPIO_PA_BASE);
 
   // enable interrupt
   iowrite32(0xFF, gpio_base + GPIO_IEN);
@@ -174,9 +162,6 @@ static int __init gampad_init(void) {
   // clear interrupt flags
   iowrite32(0xFFFF, gpio_base + GPIO_IFC);
 
-  // set driver enabled flag
-  driver_en = 1;
-
   printk(KERN_INFO "Driver started...\n");
   return 0;
 }
@@ -184,7 +169,6 @@ static int __init gampad_init(void) {
 static void __exit gamepad_cleanup(void) {
 
   iounmap(gpio_base);
-  iounmap(gpio_pc_base);
 
   device_destroy(cl, devno);
   class_destroy(cl);
@@ -199,7 +183,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id) {
 
   iowrite32(0xFFFF, gpio_base + GPIO_IFC);
   kill_fasync(&async_queue, SIGIO, POLL_IN);
-  printk(KERN_INFO "Interrupt handled...\n");
+  printk(KERN_INFO "Interrupt handled test 2...\n");
   return IRQ_HANDLED;
 }
 
