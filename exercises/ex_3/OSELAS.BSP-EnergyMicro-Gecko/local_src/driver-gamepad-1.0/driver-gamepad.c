@@ -72,11 +72,11 @@ ssize_t gamepad_read(struct file *filp, char __user *buff, size_t len, loff_t *o
   return 0;
 }
 // write function for user
-ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t len, loff_t *offp) {
-
-  printk(KERN_INFO "Gamepad driver: write()\n");
-  return len;
-}
+//ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t len, loff_t *offp) {
+//
+//  printk(KERN_INFO "Gamepad driver: write()\n");
+//  return len;
+//}
 
 // something
 ssize_t gamepad_fasync(int fd, struct file *filp, int mode) {
@@ -88,7 +88,7 @@ ssize_t gamepad_fasync(int fd, struct file *filp, int mode) {
 static struct file_operations my_fops = {
   .owner = THIS_MODULE,
   .read = gamepad_read,
-  .write = gamepad_write,
+  // .write = gamepad_write,
   .open = gamepad_open,
   .release = gamepad_release,
   .fasync = gamepad_fasync
