@@ -8,17 +8,12 @@
  * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
- * This file is licensed under the Silicon Labs Software License Agreement. See 
- * "http://developer.silabs.com/legal/version/v11/Silicon_Labs_Software_License_Agreement.txt"  
- * for details. Before using this software for any purpose, you must agree to the 
+ * This file is licensed under the Silicon Labs Software License Agreement. See
+ * "http://developer.silabs.com/legal/version/v11/Silicon_Labs_Software_License_Agreement.txt"
+ * for details. Before using this software for any purpose, you must agree to the
  * terms of that agreement.
  *
  ******************************************************************************/
-#include "em_device.h"
-#include "em_emu.h"
-#include "em_cmu.h"
-#include "em_chip.h"
-
 #include "game.h"
 
 void SysTick_Handler( void ) {

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 #include <signal.h>
 #include <fcntl.h>
 
@@ -36,13 +37,6 @@
 #define SW1 1
 #define SW7 64
 
-typedef enum {
-  NO_BTN,
-  LEFT,
-  RIGHT,
-  RESET
-} button_t;
-
 typedef char bool;
 
 int descr;
@@ -62,10 +56,15 @@ static bool gameInitiated = false;
 volatile bool gameUpdateFlag, pb0Pressed, pb1Pressed;
 volatile GameState state, nextState;
 volatile int timeout = 0;
-static DISPLAY_Device_t displayDevice;
+//static DISPLAY_Device_t displayDevice;
 uint16_t xNow, yNow, barNow;
 
-bool ballMissBar(void);
+bool ballMissBar(int dir);
+void gpioSetup();
+void interrupt_handler(int signo);
+void moveBar(int16_t dir);
+void moveBall(int8_t xTrajectory, int8_t yDir, uint16_t lvl);
+bool ballMissBar(int dir);
 
 void GAME_timerEventHandler(void)
 {
@@ -100,15 +99,14 @@ void GAME_timerEventHandler(void)
 
 void GAME_init(void)
 {
-  EMSTATUS status;
-
   /* Initialize the DISPLAY driver. */
-  DISPLAY_Init();
+  //DISPLAY_Init();
+  display_setup();
 
-  /* Retrieve the properties of the DISPLAY. */
-  status = DISPLAY_DeviceGet(DISPLAY_DEVICE_NO, &displayDevice);
-  if (DISPLAY_EMSTATUS_OK != status)
-    return;
+  ///* Retrieve the properties of the DISPLAY. */
+  //status = DISPLAY_DeviceGet(DISPLAY_DEVICE_NO, &displayDevice);
+  //if (DISPLAY_EMSTATUS_OK != status)
+  //  return;
 
   /* Initialize buttons */
   gpioSetup();
@@ -185,34 +183,35 @@ void GAME_loop(void)
 
             /* Handle ball movement */
             // When ball hits ceiling
-            if(yNow - BALL_RADIUS =< 0){
+            if(yNow - BALL_RADIUS <= 0){
               ballDir = DOWN;
               path = (-1) * prevPath;
               prevPath = path;
               moveBall(path, ballDir, level);
             }
             // When ball hits left wall
-            else if(xNow - BALL_RADIUS =< 0){
+            else if(xNow - BALL_RADIUS <=0){
               path = (-1) * prevPath;
               prevPath = path;
               moveBall(path, ballDir, level);
             }
             // When ball hits right wall
-            else if(xNow + BALL_RADIUS => SCREEN_RES_X){
+            else if(xNow + BALL_RADIUS >= SCREEN_RES_X){
               path = (-1) * prevPath;
               prevPath = path;
               moveBall(path, ballDir, level);
             }
             // When ball hits bar
-            else if((yNow + BALL_RADIUS => SCREEN_RES_Y - BAR_HEIGHT) && (xNow => barNow - BAR_WIDTH/2 ) && (xNow =< barNow + BAR_WIDTH/2) ){
-              path = int (cos((((xNow - (barNow + (BAR_WIDTH/2)))/(BAR_WIDTH/2)) * 75)));
+            else if((yNow + BALL_RADIUS >= SCREEN_RES_Y - BAR_HEIGHT) && (xNow >= barNow - BAR_LENGTH/2 ) && (xNow <= barNow + BAR_LENGTH/2) ){
+              // A bit sketchy
+              path = (int)(cos((((xNow - (barNow + (BAR_LENGTH/2)))/(BAR_LENGTH/2)) * 75)));
               prevPath = path;
               ballDir = UP;
               bounces++;
             }
             // Moving freely
             else {
-              moveBall(path, ballDir, level)
+              moveBall(path, ballDir, level);
             }
 
             if(bounces > 10){
@@ -229,9 +228,11 @@ void GAME_loop(void)
           /**/
           // Clear screen and finalize
           nextState = gameOverWait;
+          break;
         case gameOverWait:
           // Wait
-          nextState = welcomeScreen
+          nextState = welcomeScreen;
+          break;
       }
     }
     else
@@ -288,10 +289,9 @@ bool ballMissBar(int dir)
 }
 
 void interrupt_handler(int signo) {
-  //if(signum ==SIGIO){
+
   read((descr), &buff, 1);
   printf("type: %d reading %d\n", signo, buff);
-  //}
 
   switch (buff) {
     case SW0:
@@ -307,10 +307,11 @@ void interrupt_handler(int signo) {
       pb1Pressed = true;
       break;
   }
-  printf("pb0 %d, pb1 %d\n", pb0, pb1);
+
+  printf("pb0 %d, pb1 %d\n", pb0Pressed, pb1Pressed);
 }
 
-int setup_async_notify() {
+void gpioSetup() {
 
   int oflags;
   descr = open("/dev/gamepad", O_RDONLY);
@@ -319,3 +320,4 @@ int setup_async_notify() {
   oflags = fcntl(descr, F_GETFL);
   fcntl(descr, F_SETFL, oflags | FASYNC);
 
+}

@@ -5,12 +5,21 @@
  *      Author: jonzk_000
  */
 
-#include <stdint.h>
-
 #include "graphics.h"
+#include "display.h"
 
+color_t blue   = {31,0,0},
+        red    = {0,0,31},
+        green  = {0,63,0},
+        yellow = {0,63,31},
+        cyan   = {31,63,0},
+        pink   = {31,0,31},
+        white  = {31,63,31},
+        black  = {0,0,0};
 
-void printPixel(uint16_t x, uint16_t y, uint16_t color);
+typedef unsigned int uint32_t;
+typedef unsigned short uint16_t;
+typedef unsigned char uint8_t;
 
 void GRAPHICS_printBall(uint16_t x, uint16_t y)
 {
@@ -22,10 +31,11 @@ void GRAPHICS_printBall(uint16_t x, uint16_t y)
 		{
 			if ( ((a*a) + (b*b)) < (BALL_RADIUS*BALL_RADIUS) )
 			{
-				printPixel(a,b, BALL_COLOR);
+				display_draw_pixel(a,b, white);
 			}
 		}
 	}
+  display_refresh();
 }
 
 void GRAPHICS_clearBall(uint16_t x, uint16_t y)
@@ -38,21 +48,12 @@ void GRAPHICS_clearBall(uint16_t x, uint16_t y)
 		{
 			if ( ((a*a) + (b*b)) < (BALL_RADIUS*BALL_RADIUS) )
 			{
-				printPixel(a,b, BCKGRND_COLOR);
+				display_draw_pixel(a,b, black);
 			}
 		}
 	}
 }
 
-void GRAPHICS_printBar(uint16_t x)
-{
-	uint16_t a,b;
-	if()
-}
-
-
-
-void printPixel(uint16_t x, uint16_t y, uint16_t color)
-{
-	/* Brukes fra API */
-}
+void GRAPHICS_showWelcomeScreen(void) {}
+void GRAPHICS_clearScreen(void) {}
+void GRAPHICS_printBar(uint16_t x) {}

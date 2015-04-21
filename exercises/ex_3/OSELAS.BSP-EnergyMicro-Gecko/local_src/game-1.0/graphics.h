@@ -23,6 +23,6 @@ void GRAPHICS_clearScreen(void);
 void GRAPHICS_printBall(uint16_t x, uint16_t y);
 void GRAPHICS_printBar(uint16_t x);
 void GRAPHICS_clearBall(uint16_t x, uint16_t y);
-void GRAPHICS_clearBar(uint16_t x);
+//void GRAPHICS_clearBar(uint16_t x);
 
 #endif /* GRAPHICS_H_ */

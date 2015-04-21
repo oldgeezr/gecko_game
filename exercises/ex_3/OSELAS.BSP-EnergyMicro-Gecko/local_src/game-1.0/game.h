@@ -8,15 +8,6 @@
 #ifndef GAME_H_
 #define GAME_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "em_cmu.h"
-#include "em_emu.h"
-#include "em_gpio.h"
-
-#include "bspconfig.h"
-
 #include "display.h"
 #define DISPLAY_DEVICE_NO	(0)
 
