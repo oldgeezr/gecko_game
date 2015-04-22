@@ -28,13 +28,13 @@ void display_draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, color_t c
 
 	if (y0 < y1) {
 		ystep = 1;
-		} else {
-	ystep = -1;}
+	} else {
+		ystep = -1;}
 
 	for (; x0<=x1; x0++) {
 		if (steep) {
 			display_draw_pixel(y0, x0, color);
-			} else {
+		} else {
 			display_draw_pixel(x0, y0, color);
 		}
 		err -= dy;
@@ -125,18 +125,18 @@ void display_draw_char(uint16_t x, uint16_t y, char c, color_t color, uint8_t si
 	uint8_t i,j;
 
 	for (i = 0; i < 5; i++) {
-	  uint8_t line = font[(c*5)+i];
-	  for (j = 0; j < 8; j++) {
-		  if (line & 0x1) {
-			  if (size == 1) // default size
+		uint8_t line = font[(c*5)+i];
+		for (j = 0; j < 8; j++) {
+			if (line & 0x1) {
+				if (size == 1) // default size
 					display_draw_pixel(x+i, y+j, color);
-			  else {  // big size
-				  display_draw_filled_rect(x+i*size, y+j*size, size, size, color);
-			  }
-		  }
-		  line >>= 1;
-	  }
-  }
+				else {  // big size
+					display_draw_filled_rect(x+i*size, y+j*size, size, size, color);
+				}
+			}
+			line >>= 1;
+		}
+	}
 }
 
 void display_puts(uint16_t x, uint16_t y, char *str, color_t color, uint8_t size) {

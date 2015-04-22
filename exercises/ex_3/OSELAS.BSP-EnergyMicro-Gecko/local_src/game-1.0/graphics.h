@@ -11,12 +11,12 @@
 #include <stdint.h>
 
 /* Graphic attributes */
-#define BAR_LENGTH  	40 		// Pixels
-#define BAR_HEIGHT		6 		// Pixels
-#define BAR_COLOR   	0xFFF 	// RGB hexadecimals
-#define BALL_RADIUS 	6 		// Pixels
-#define BALL_COLOR  	0xFFF 	// RGB hexadecimals
-#define BCKGRND_COLOR 	0x000 	// RGB hexadecimals
+#define BAR_LENGTH		40		// Pixels
+#define BAR_HEIGHT		6			// Pixels
+#define BAR_COLOR			0xFFF		// RGB hexadecimals
+#define BALL_RADIUS		6			// Pixels
+#define BALL_COLOR		0xFFF		// RGB hexadecimals
+#define BCKGRND_COLOR		0x000		// RGB hexadecimals
 
 void GRAPHICS_showWelcomeScreen(void);
 void GRAPHICS_clearScreen(void);
