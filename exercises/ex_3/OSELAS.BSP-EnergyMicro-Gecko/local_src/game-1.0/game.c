@@ -58,23 +58,12 @@ bool ballMissBar(int dir);
 
 static inline void GAME_timerEventHandler(void) {
 
-	static int frameUpdateCount    = 0;
-
-	/* Return at once if init has not been called */
 	if (!gameInitiated) {
 		return;
 	}
 
-	frameUpdateCount = 0;
 	state = nextState;
 	gameUpdateFlag = true;
-
-	/* Update wait timer */
-	if (timeout > 0) {
-		timeout--;
-	}
-
-	return;
 }
 
 void GAME_init(void) {
@@ -102,114 +91,100 @@ void GAME_loop(void) {
 
 	while(1) {
 		if (gameUpdateFlag) {
-
 			gameUpdateFlag = false;
 			switch(state) {
 				case welcomeScreen:
 					GRAPHICS_showWelcomeScreen();
 					nextState = welcomeScreenWait;
-					printf("STATE: Welcome Screen\n");
 					break;
 				case welcomeScreenWait:
-					/* Start the game when PB0 or PB1 is pressed */
 					if (pb0Pressed || pb1Pressed) {
 						nextState = gameInit;
 					}
-					printf("STATE: Welcome screen wait\n");
 					break;
 				case gameInit:
 					xNow = SCREEN_RES_X/2;
 					yNow = 150;
 					barNow = SCREEN_RES_X/2;
 
-					GRAPHICS_clearScreen();
-					GRAPHICS_printBar(barNow);
-					GRAPHICS_printBall(xNow, yNow);
-
 					ballDir = DOWN;
-					path = 3;
+					path = 1;
 					bounces = 0;
 					level = 1;
 
-					nextState = gameRunning;
+					GRAPHICS_clearScreen();
+					GRAPHICS_printLevel(level);
+					GRAPHICS_printScore(bounces);
+					GRAPHICS_printBackground();
+					GRAPHICS_printBar(barNow);
+					GRAPHICS_printBall(xNow, yNow);
 
-					printf("STATE: Game Init\n");
+					nextState = gameRunning;
 					break;
 				case gameRunning:
-					/* Check loose-constraints */
 					if(!ballMissBar(ballDir)) {
-						/* Handle bar movement for button presses */
+						// Handle buttons
 						if(pb0Pressed && !pb1Pressed) {
 							moveBar(LEFT);
-							//printf("STATE: Game -> Moving Left\n");
 						}
 						if(pb1Pressed && !pb0Pressed) {
 							moveBar(RIGHT);
-							//printf("STATE: Game -> Moving right\n");
 						}
-
-						/* Handle ball movement */
 						// When ball hits ceiling
-						if(yNow - BALL_RADIUS <= 0) {
+						if(yNow - BALL_RADIUS - 20 <= 0) {
 							ballDir = DOWN;
 							path = prevPath;
 							prevPath = path;
-							//printf("STATE: Game -> Ball hit ceiling\n");
 						}
 						// When ball hits left wall
-						else if(xNow - BALL_RADIUS <= 0) {
+						else if(xNow - BALL_RADIUS - 5 <= 0) {
 							path = (-1) * prevPath;
 							prevPath = path;
-							//printf("STATE: Game -> Ball hit left wall\n");
 						}
 						// When ball hits right wall
-						else if(xNow + BALL_RADIUS >= SCREEN_RES_X) {
+						else if(xNow + BALL_RADIUS + 5 >= SCREEN_RES_X) {
 							path = (-1) * prevPath;
 							prevPath = path;
 							moveBall(path, ballDir, level);
-							printf("STATE: Game -> Ball hit right wall\n");
 						}
 						// When ball hits bar
-						else if((yNow + BALL_RADIUS >= SCREEN_RES_Y - BAR_HEIGHT - 5) && (xNow >= barNow ) && (xNow <= barNow + BAR_LENGTH) ){
+						else if((yNow + BALL_RADIUS + 5 >= SCREEN_RES_Y - BAR_HEIGHT) && (xNow >= barNow ) && (xNow <= barNow + BAR_LENGTH) ){
+							GRAPHICS_printScore(++bounces);
 							percentage = ((double)(2*(xNow - (barNow + BAR_LENGTH/2))))/((double)BAR_LENGTH);
 							path = (int)(percentage * (double)X_MAX);
-							printf("STATE:Game, path = %d - %f \n",path,percentage);
 							prevPath = path;
 							ballDir = UP;
-							bounces++;
-							printf("STATE: Game -> Ball hits bar\n");
 						}
-						// Moving freely
 						moveBall(path, ballDir, level);
 
 						if(bounces > 10) {
+							GRAPHICS_printLevel(++level);
 							level++;
 							bounces = 0;
 						}
-					}else {
+					} else {
 						nextState = gameOver;
 					}
 					break;
 				case gameOver:
-					// Clear screen and finalize
+					GRAPHICS_gameOver();
 					nextState = gameOverWait;
-					printf("STATE: Game Over\n");
 					break;
 				case gameOverWait:
-					// Wait
+					sleep(5);
 					nextState = welcomeScreen;
-					printf("STATE: Game Over Wait");
 					break;
 			}
 		}
 		else {
-			display_refresh();
+			usleep(50000);
 			GAME_timerEventHandler();
 		}
 	}
 }
 
 void moveBar(int16_t dir) {
+
 	if(dir < 0 && (barNow > 0)){
 		GRAPHICS_clearBar(barNow);
 		barNow = barNow - BAR_MOVE;
@@ -222,8 +197,8 @@ void moveBar(int16_t dir) {
 	}
 }
 
-bool ballMissBar(int dir)
-{
+bool ballMissBar(int dir) {
+
 	if((yNow + BALL_RADIUS + BAR_HEIGHT) > SCREEN_RES_Y && dir > 0){
 		return true;
 	} else {
@@ -242,15 +217,14 @@ void gpioSetup(void) {
 
 }
 
-// Antar 1 pixelbevegelse i Y-akse, 0 er rett opp. Speed 0 er stopp, 1 er laveste hastighet, osv.
 void moveBall(int8_t xTrajectory, int8_t yDir, uint16_t lvl) {
 
 	GRAPHICS_clearBall(xNow, yNow);
 	xNow = xNow + xTrajectory;
 	if(yDir < 0) {
-		yNow = yNow - BALL_MOVE*lvl;
+		yNow = yNow - (BALL_MOVE+lvl);
 	} else {
-		yNow = yNow + BALL_MOVE*lvl;
+		yNow = yNow + (BALL_MOVE+lvl);
 	}
 	GRAPHICS_printBall(xNow, yNow);
 }

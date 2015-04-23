@@ -44,7 +44,11 @@ static inline void display_clear_pixel(uint16_t x, uint16_t y) {
 	//display_buffer[x + y * WIDTH] = {0,0,0};
 }
 
-static inline void display_refresh(void) {
+static inline void display_refresh(uint16_t dx, uint16_t dy, uint16_t w, uint16_t h) {
+	rect.dx = dx;
+	rect.dy = dy;
+	rect.width = w;
+	rect.height = h;
 	ioctl(fb, 0x4680, &rect);
 }
 
