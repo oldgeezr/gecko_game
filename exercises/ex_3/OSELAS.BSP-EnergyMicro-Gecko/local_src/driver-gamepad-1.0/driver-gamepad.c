@@ -66,17 +66,18 @@ ssize_t gamepad_read(struct file *filp, char __user *buff, size_t len, loff_t *o
   int data;
   data = ~ioread32(gpio_pc_base + GPIO_PC_DIN);
   copy_to_user(buff, &data, 1);
-  //printk(KERN_INFO "Gamepad driver: read()\n");
+  printk(KERN_INFO "Gamepad driver: read()\n");
   return 0;
 }
-// write function for user
-//ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t len, loff_t *offp) {
-//
-//  printk(KERN_INFO "Gamepad driver: write()\n");
-//  return len;
-//}
 
-// something
+// write function for user
+ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t len, loff_t *offp) {
+
+  printk(KERN_INFO "Gamepad driver: write()\n");
+  return len;
+}
+
+// register for asynchronous notfication for user
 ssize_t gamepad_fasync(int fd, struct file *filp, int mode) {
 
   return fasync_helper(fd, filp, mode, &async_queue);
@@ -86,7 +87,7 @@ ssize_t gamepad_fasync(int fd, struct file *filp, int mode) {
 static struct file_operations my_fops = {
   .owner = THIS_MODULE,
   .read = gamepad_read,
-  // .write = gamepad_write,
+  .write = gamepad_write,
   .open = gamepad_open,
   .release = gamepad_release,
   .fasync = gamepad_fasync
@@ -98,7 +99,7 @@ static int __init gampad_init(void) {
 
   printk(KERN_INFO "Initialize Gamepad Driver...\n");
 
-  // allocate region for character device
+  // register the device
   err = alloc_chrdev_region(&devno, 0, 1, NAME);
 
   if (err < 0) {
@@ -115,7 +116,7 @@ static int __init gampad_init(void) {
     return -1;
   }
 
-  // create character device in user space
+  // create the device in the kernel file system
   dev_create = device_create(cl, NULL, devno, NULL, NAME);
 
   if (dev_create == NULL) {
@@ -129,7 +130,7 @@ static int __init gampad_init(void) {
   // initialize character device
   cdev_init(&my_cdev, &my_fops);
 
-  // add device to the kernel
+  // add device to the kernel and create /dev instance
   err = cdev_add(&my_cdev, devno, 1);
 
   if (err < 0) {
@@ -187,7 +188,7 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id) {
 
   iowrite32(0xFFFF, gpio_base + GPIO_IFC);
   kill_fasync(&async_queue, SIGIO, POLL_IN);
-  //printk(KERN_INFO "Interrupt handled test...\n");
+  printk(KERN_INFO "Interrupt handled...\n");
   return IRQ_HANDLED;
 }
 
