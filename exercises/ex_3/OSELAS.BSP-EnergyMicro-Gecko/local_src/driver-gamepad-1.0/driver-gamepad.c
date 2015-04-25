@@ -45,7 +45,7 @@ int gamepad_open(struct inode *inode, struct file *filp) {
   request_irq(GPIO_EVEN_IRQ, &interrupt_handler, 0, NAME, NULL);
   request_irq(GPIO_ODD_IRQ, &interrupt_handler, 0, NAME, NULL);
 
-  printk(KERN_INFO "Gamepad driver: open()\n");
+  // printk(KERN_INFO "Gamepad driver: open()\n");
   return 0;
 }
 
@@ -56,7 +56,7 @@ int gamepad_release(struct inode *inode, struct file *filp) {
   free_irq(GPIO_EVEN_IRQ, NULL);
   free_irq(GPIO_ODD_IRQ, NULL);
 
-  printk(KERN_INFO "Gamepad driver: close()\n");
+  // printk(KERN_INFO "Gamepad driver: close()\n");
   return 0;
 }
 
@@ -66,14 +66,14 @@ ssize_t gamepad_read(struct file *filp, char __user *buff, size_t len, loff_t *o
   int data;
   data = ~ioread32(gpio_pc_base + GPIO_PC_DIN);
   copy_to_user(buff, &data, 1);
-  printk(KERN_INFO "Gamepad driver: read()\n");
+  // printk(KERN_INFO "Gamepad driver: read()\n");
   return 0;
 }
 
 // write function for user
 ssize_t gamepad_write(struct file *filp, const char __user *buff, size_t len, loff_t *offp) {
 
-  printk(KERN_INFO "Gamepad driver: write()\n");
+  // printk(KERN_INFO "Gamepad driver: write()\n");
   return len;
 }
 
@@ -97,7 +97,7 @@ static int __init gampad_init(void) {
 
   int err;
 
-  printk(KERN_INFO "Initialize Gamepad Driver...\n");
+  printk(KERN_INFO "Initialize Gamepad Driver v2...\n");
 
   // register the device
   err = alloc_chrdev_region(&devno, 0, 1, NAME);
@@ -188,8 +188,8 @@ static irqreturn_t interrupt_handler(int irq, void *dev_id) {
 
   iowrite32(0xFFFF, gpio_base + GPIO_IFC);
   kill_fasync(&async_queue, SIGIO, POLL_IN);
-  printk(KERN_INFO "Interrupt handled...\n");
-  return IRQ_HANDLED;
+  // printk(KERN_INFO "Interrupt handled...\n");
+	return IRQ_HANDLED;
 }
 
 module_init(gampad_init);

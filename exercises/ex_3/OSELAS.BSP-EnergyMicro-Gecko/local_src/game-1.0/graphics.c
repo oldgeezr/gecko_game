@@ -58,9 +58,9 @@ void GRAPHICS_showWelcomeScreen(void) {
 
 	GRAPHICS_clearScreen();
 	display_puts(WIDTH/2-3*strlen(str2),20,str2,white,1);
-	display_draw_filled_rect(0,70,WIDTH,5,white);
+	display_draw_filled_rect(0,70,WIDTH,5,green);
 	display_puts(50, 110, "Game Of Pong",white,3);
-	display_draw_filled_rect(0,160,WIDTH,5,white);
+	display_draw_filled_rect(0,160,WIDTH,5,green);
 	display_puts(WIDTH/2 - 3*strlen(str),200,str,white,1);
 	display_refresh(0,0,WIDTH,HEIGHT);
 }

@@ -1,13 +1,4 @@
-//`AC_DEFINE(_GNU_SOURCE)'
-//     GNU packages should normally include this line before any other
-//     feature tests.  This defines the macro `_GNU_SOURCE' when
-//     compiling, which directs the libc header files to provide the
-//     standard GNU system interfaces including all GNU extensions.  If
-//     this macro is not defined, certain GNU extensions may not be
-//     available.
-
-#ifndef _POSIX_C_SOURCE
-//#define _POSIX_C_SOURCE 1
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
 
@@ -46,10 +37,8 @@ typedef enum _gameState {
 static bool gameInitiated = false;
 volatile bool gameUpdateFlag, pb0Pressed, pb1Pressed;
 volatile GameState state, nextState;
-volatile int timeout = 0;
 uint16_t xNow, yNow, barNow;
 
-bool ballMissBar(int dir);
 void gpioSetup();
 void interrupt_handler(int signo);
 void moveBar(int16_t dir);
@@ -185,12 +174,12 @@ void GAME_loop(void) {
 
 void moveBar(int16_t dir) {
 
-	if(dir < 0 && (barNow > 0)){
+	if(dir < 0 && (barNow > 0)) {
 		GRAPHICS_clearBar(barNow);
 		barNow = barNow - BAR_MOVE;
 		GRAPHICS_printBar(barNow);
 	}
-	else if(dir > 0 && (barNow < (SCREEN_RES_X - BAR_LENGTH))){
+	else if(dir > 0 && (barNow < (SCREEN_RES_X - BAR_LENGTH))) {
 		GRAPHICS_clearBar(barNow);
 		barNow = barNow + BAR_MOVE;
 		GRAPHICS_printBar(barNow);
@@ -214,7 +203,6 @@ void gpioSetup(void) {
 	fcntl(descr, F_SETOWN, getpid());
 	oflags = fcntl(descr, F_GETFL);
 	fcntl(descr, F_SETFL, oflags | FASYNC);
-
 }
 
 void moveBall(int8_t xTrajectory, int8_t yDir, uint16_t lvl) {

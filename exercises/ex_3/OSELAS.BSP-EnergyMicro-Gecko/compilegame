@@ -1,14 +1,14 @@
 #!/bin/bash
 
 echo "Clean driver-gamepad and game"
-#ptxdist clean driver-gamepad
+ptxdist clean driver-gamepad
 ptxdist clean game
 echo "Compile driver-gamepad and game"
-#ptxdist go
-#ptxdist compile driver-gamepad
+ptxdist go
+ptxdist compile driver-gamepad
 ptxdist compile game
 echo "Install driver-gamepad and game"
-#ptxdist targetinstall driver-gamepad
+ptxdist targetinstall driver-gamepad
 ptxdist targetinstall game
 echo "Make images for driver-gamepad and game"
 ptxdist image root.romfs
